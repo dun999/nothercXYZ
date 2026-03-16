@@ -9,10 +9,14 @@ export function formatAmount(raw: bigint, decimals: number, maxFrac = 4): string
 }
 
 export function formatUSD(n: number): string {
-  if (n >= 1_000_000)
-    return `$${(n / 1_000_000).toLocaleString("en-US", { maximumFractionDigits: 2 })}M`;
-  if (n >= 1_000)
-    return `$${(n / 1_000).toLocaleString("en-US", { maximumFractionDigits: 1 })}K`;
+  if (n >= 1_000_000) {
+    const v = n / 1_000_000;
+    return `$${v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)}M`;
+  }
+  if (n >= 1_000) {
+    const v = n / 1_000;
+    return `$${v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)}K`;
+  }
   return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
