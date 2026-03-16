@@ -3,7 +3,7 @@
 import { useAccount } from "wagmi";
 import { Portfolio } from "@/components/Portfolio";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
-import { FAQ } from "@/components/FAQ";
+import { ThemeSlide } from "@/components/ThemeSlide";
 import { shortenAddress } from "@/lib/format";
 import Link from "next/link";
 
@@ -11,10 +11,7 @@ function EmptyState() {
   return (
     <div
       className="rounded-2xl p-8 text-center"
-      style={{
-        background: "var(--color-n-surface)",
-        border: "1px solid var(--color-n-border)",
-      }}
+      style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
     >
       <div
         className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
@@ -36,7 +33,7 @@ function EmptyState() {
       <Link
         href="/"
         className="inline-block px-6 py-3 rounded-xl font-bold text-sm"
-        style={{ background: "var(--color-n-accent)", color: "#000" }}
+        style={{ background: "var(--color-n-accent)", color: "var(--color-n-bg)" }}
       >
         Explore vaults
       </Link>
@@ -49,54 +46,23 @@ export default function PortfolioPage() {
 
   return (
     <div className="px-4 pt-safe pb-safe">
-      {/* Header */}
       <div className="flex items-center justify-between py-4 mb-2">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "var(--color-n-text)" }}>
-            Portfolio
-          </h1>
+          <h1 className="text-2xl font-black" style={{ color: "var(--color-n-text)" }}>Portfolio</h1>
           {address && (
             <p className="text-xs mt-0.5" style={{ color: "var(--color-n-muted)" }}>
               {shortenAddress(address)}
             </p>
           )}
         </div>
-        <HamburgerMenu />
+        <div className="flex items-center gap-2">
+          <ThemeSlide />
+          <HamburgerMenu />
+        </div>
       </div>
 
       <Portfolio />
       {!address && <EmptyState />}
-
-      {/* FAQ */}
-      <div className="mt-8 mb-6">
-        <FAQ />
-      </div>
-
-      {/* Trust footer */}
-      <div
-        className="rounded-2xl p-4 mb-6"
-        style={{
-          background: "var(--color-n-surface)",
-          border: "1px solid var(--color-n-border)",
-        }}
-      >
-        <p className="text-xs font-semibold mb-2" style={{ color: "var(--color-n-text)" }}>
-          Non-custodial and transparent
-        </p>
-        <p className="text-xs leading-relaxed" style={{ color: "var(--color-n-muted)" }}>
-          Your funds are held by ERC-4626 smart contracts on Base, not by Notherc.
-          YO Protocol rebalances continuously across DeFi protocols for the best
-          risk-adjusted yield.{" "}
-          <a
-            href="https://basescan.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "var(--color-n-accent)", textDecoration: "underline" }}
-          >
-            Verify on BaseScan
-          </a>
-        </p>
-      </div>
     </div>
   );
 }

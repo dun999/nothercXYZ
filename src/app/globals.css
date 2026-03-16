@@ -14,11 +14,11 @@
   --color-n-text:         #F0EDE8;
   --color-n-muted:        #484848;
   --color-n-subtle:       #161616;
-  --color-n-accent:       #00D68F;
-  --color-n-accent-dim:   #00B374;
-  --color-n-accent-glow:  rgba(0, 214, 143, 0.10);
+  --color-n-accent:       #EFEFEF;
+  --color-n-accent-dim:   #C8C8C8;
+  --color-n-accent-glow:  rgba(239, 239, 239, 0.07);
   --color-n-nav-bg:       rgba(3, 3, 3, 0.96);
-  --color-n-glow-top:     rgba(0, 214, 143, 0.04);
+  --color-n-glow-top:     rgba(239, 239, 239, 0.025);
 }
 
 /* ── Light mode overrides ── */
@@ -30,9 +30,9 @@
   --color-n-text:         #0A0A0A;
   --color-n-muted:        #7A7A7A;
   --color-n-subtle:       #E8E8E6;
-  --color-n-accent:       #007A52;
-  --color-n-accent-dim:   #005C3D;
-  --color-n-accent-glow:  rgba(0, 122, 82, 0.10);
+  --color-n-accent:       #111111;
+  --color-n-accent-dim:   #333333;
+  --color-n-accent-glow:  rgba(17, 17, 17, 0.08);
   --color-n-nav-bg:       rgba(244, 244, 242, 0.96);
   --color-n-glow-top:     transparent;
 }
