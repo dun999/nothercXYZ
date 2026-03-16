@@ -80,11 +80,12 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
       />
 
       <div
-        className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl transition-transform duration-300"
+        className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl sheet-slide"
         style={{
           background: "var(--color-n-surface)",
           borderTop: "1px solid var(--color-n-border)",
           transform: open ? `translateY(${dragOffset}px)` : "translateY(100%)",
+          minHeight: "62dvh",
           maxHeight: "92dvh",
           display: "flex",
           flexDirection: "column",

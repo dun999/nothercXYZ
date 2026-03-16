@@ -1,0 +1,7 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="22" fill="#00D395"/>
+  <!-- Dollar sign vertical bar -->
+  <rect x="46" y="14" width="8" height="72" rx="4" fill="#000"/>
+  <!-- Dollar sign S-curve top -->
+  <path d="M62 32 C62 22 38 22 38 34 C38 46 62 46 62 58 C62 70 38 70 38 62" stroke="#000" stroke-width="10" stroke-linecap="round" fill="none"/>
+</svg>

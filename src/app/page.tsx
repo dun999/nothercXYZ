@@ -4,6 +4,7 @@ import { useAccount } from "wagmi";
 import { useVaults } from "@yo-protocol/react";
 import { VaultCard } from "@/components/VaultCard";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
+import { ThemeSlide } from "@/components/ThemeSlide";
 import { VAULTS } from "@/lib/constants";
 import { formatPercent, shortenAddress } from "@/lib/format";
 
@@ -65,7 +66,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        <HamburgerMenu />
+        <div className="flex items-center gap-2">
+          <ThemeSlide />
+          <HamburgerMenu />
+        </div>
       </div>
 
       <div className="mb-6">
@@ -134,8 +138,8 @@ export default function HomePage() {
             Live on Base
           </span>
         </div>
-        {VAULTS.map((vault) => (
-          <VaultCard key={vault.id} vault={vault} />
+        {VAULTS.map((vault, i) => (
+          <VaultCard key={vault.id} vault={vault} index={i} />
         ))}
       </div>
 

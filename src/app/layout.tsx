@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Notherc, on-chain savings",
   description:
-    "Earn up to 8% APY on USDC, ETH, and BTC. Non-custodial, no lock-up. Deposit and earn on Base.",
+    "Earn yield on USDC, ETH, BTC and EUR. Non-custodial, no lock-up. Deposit and earn on Base.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -23,7 +23,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#080808",
+  themeColor: "#030303",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
