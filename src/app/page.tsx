@@ -48,14 +48,7 @@ export default function HomePage() {
     <div className="px-4 pt-safe pb-safe">
       <div className="flex items-center justify-between py-4">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-            }}
-          >
-            <span className="text-xs font-black" style={{ color: "var(--color-n-on-accent)", fontStyle: "italic" }}>N</span>
-          </div>
+          <img src="/logo.svg" alt="Notherc" width={32} height={32} style={{ borderRadius: 10 }} />
           <div>
             <span className="text-xs" style={{ color: "var(--color-n-muted)" }}>
               Hey, {displayName}
@@ -107,7 +100,7 @@ export default function HomePage() {
       >
         <div className="flex justify-between gap-3">
           {[
-            { step: "1", label: "Deposit", sub: "USDC, ETH or BTC" },
+            { step: "1", label: "Deposit", sub: "USDC, ETH, BTC or EUR" },
             { step: "2", label: "Earn", sub: "Auto-rebalanced yield" },
             { step: "3", label: "Withdraw", sub: "Any time, no lock-up" },
           ].map(({ step, label, sub }) => (

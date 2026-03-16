@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <rect width="40" height="40" rx="10" fill="#030303"/>
+  <!-- Geometric N: two vertical bars connected by a diagonal, with notch cut -->
+  <polygon
+    points="9,30 9,10 14,10 14,21 26,10 31,10 31,30 26,30 26,19 14,30"
+    fill="#F0EDE8"
+  />
+</svg>

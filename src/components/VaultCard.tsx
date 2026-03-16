@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useVaultState, useVaults, useUserPosition } from "@yo-protocol/react";
 import { useAccount } from "wagmi";
-import { formatAmount, formatTVL, formatPercent, estimateYearlyEarnings } from "@/lib/format";
+import { formatAmount, formatTVL, formatPercent } from "@/lib/format";
 import { DepositSheet } from "./DepositSheet";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
@@ -33,8 +33,6 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
   const userShares = position?.shares ?? 0n;
   const userAssets = position?.assets ?? 0n;
   const hasPosition = userShares > 0n;
-
-  const earningsOn1k = estimateYearlyEarnings(1000, apy);
 
   return (
     <>
@@ -107,20 +105,6 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
           </div>
         )}
 
-        {/* Earnings preview */}
-        {apy > 0 && !isLoading && !hasError && (
-          <div
-            className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between animate-fade-in"
-            style={{ background: "var(--color-n-card)" }}
-          >
-            <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>
-              $1,000 deposited earns
-            </span>
-            <span className="text-sm font-bold" style={{ color: "var(--color-n-accent)" }}>
-              {earningsOn1k}/year
-            </span>
-          </div>
-        )}
 
         {/* Stats row */}
         <div className="flex gap-3 mb-4">
@@ -134,9 +118,7 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
               <div className="text-sm font-bold" style={{ color: "var(--color-n-muted)" }}>—</div>
             ) : (
               <div className="text-sm font-bold animate-fade-in" style={{ color: "var(--color-n-text)" }}>
-                {vault.id === "yoUSD"
-                  ? formatTVL(tvl)
-                  : `${tvl.toLocaleString("en-US", { maximumFractionDigits: 4 })} ${vault.asset}`}
+                {vaultStats?.tvl?.formatted ?? formatTVL(tvl)}
               </div>
             )}
           </div>

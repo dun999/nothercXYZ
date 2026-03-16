@@ -23,14 +23,7 @@ export default function AboutPage() {
         style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-            style={{
-              background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-            }}
-          >
-            <span style={{ fontSize: 18, fontWeight: 900, color: "var(--color-n-on-accent)", fontStyle: "italic" }}>N</span>
-          </div>
+          <img src="/logo.svg" alt="Notherc" width={44} height={44} className="shrink-0" style={{ borderRadius: 12 }} />
           <div>
             <div className="font-bold" style={{ color: "var(--color-n-text)" }}>Notherc</div>
             <div className="text-xs" style={{ color: "var(--color-n-muted)" }}>Mobile-first savings on Base</div>
