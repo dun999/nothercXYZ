@@ -41,7 +41,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const [dragOffset, setDragOffset] = useState(0);
 
   const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
-  // Deteksi email user dari user.email langsung — tidak bergantung pada wallet load timing
   const isEmailUser = !!user?.email;
   const walletReady = !!embeddedWallet;
 
@@ -62,11 +61,9 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   });
 
   const wrongChain = chainId !== BASE_CHAIN_ID;
-  // balanceLoaded: tokenBal sudah resolve (bisa 0 atau ada isi)
   const balanceLoaded = tokenBal !== undefined;
   const hasBalance = balanceLoaded && tokenBal!.balance > 0n;
   const insufficientBalance = parsedAmount > 0n && balanceLoaded && parsedAmount > tokenBal!.balance;
-  // Tampilkan fund UI jika: email user DAN balance sudah load DAN kosong
   const showFundUI = isEmailUser && balanceLoaded && !hasBalance;
 
   useEffect(() => {
@@ -97,7 +94,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
     if (!embeddedWallet) return;
     fundWallet(embeddedWallet.address, {
       chain: base,
-      // Fund with the vault's native asset where possible
       asset: vault.asset === "USDC" ? "USDC" : "native-currency",
     });
   };
@@ -260,7 +256,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
               <p className="text-xs text-center" style={{ color: "var(--color-n-muted)" }}>
                 Already funded?{" "}
                 <button
-                  onClick={() => {/* force balance refresh by toggling — noop, balance auto-refreshes */}}
+                  onClick={() => {}}
                   style={{ color: "var(--color-n-accent)", textDecoration: "underline" }}
                 >
                   Refresh balance

@@ -1,14 +1,5 @@
 "use client";
 
-/**
- * Provider stack:
- *   ThemeProvider           ← dark / light mode
- *     PrivyProvider         ← email + wallet auth (Privy SDK)
- *       QueryClientProvider ← react-query
- *         WagmiProvider     ← @privy-io/wagmi (wagmi v2 compatible)
- *           YieldProvider   ← @yo-protocol/react — yield vault hooks
- */
-
 import { PrivyProvider } from "@privy-io/react-auth";
 import { WagmiProvider, createConfig } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -42,7 +33,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <PrivyProvider
         appId={PRIVY_APP_ID}
         config={{
-          // Email OTP + injected wallets only (no WalletConnect modal)
           loginMethods: ["email", "wallet"],
           appearance: {
             theme: "dark",
@@ -60,7 +50,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
             walletChainType: "ethereum-only",
           },
           embeddedWallets: {
-            // Auto-create embedded wallet for email users — powers YO SDK hooks
             createOnLogin: "users-without-wallets",
             requireUserPasswordOnCreate: false,
           },
