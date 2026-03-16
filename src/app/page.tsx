@@ -134,8 +134,8 @@ export default function HomePage() {
             Live on Base
           </span>
         </div>
-        {VAULTS.map((vault) => (
-          <VaultCard key={vault.id} vault={vault} />
+        {VAULTS.map((vault, i) => (
+          <VaultCard key={vault.id} vault={vault} index={i} />
         ))}
       </div>
 

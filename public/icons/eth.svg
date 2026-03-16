@@ -1,0 +1,11 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="50" r="50" fill="#87CEEB"/>
+  <!-- Upper diamond (darker) -->
+  <polygon points="50,18 71,52 50,43 29,52" fill="#1a1a1a"/>
+  <!-- Upper diamond highlight -->
+  <polygon points="50,18 71,52 50,43" fill="#111"/>
+  <!-- Lower diamond (slightly lighter) -->
+  <polygon points="50,82 71,56 50,65 29,56" fill="#1a1a1a"/>
+  <!-- Lower diamond highlight -->
+  <polygon points="50,82 50,65 29,56" fill="#333"/>
+</svg>

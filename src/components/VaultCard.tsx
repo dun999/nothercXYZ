@@ -9,21 +9,25 @@ import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
 import type { VaultConfig } from "@/lib/constants";
 
-export function VaultCard({ vault }: { vault: VaultConfig }) {
+export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: number }) {
   const { address } = useAccount();
-  const { vaultState, isLoading: stateLoading } = useVaultState(vault.id);
-  const { vaults: vaultsList, isLoading: vaultsLoading } = useVaults();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const vaultStateResult = useVaultState(vault.id) as any;
+  const { vaultState, isLoading: stateLoading, error: stateError } = vaultStateResult;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const vaultsResult = useVaults() as any;
+  const { vaults: vaultsList, isLoading: vaultsLoading, error: vaultsError } = vaultsResult;
   const { position } = useUserPosition(vault.id, address!, { enabled: !!address });
 
   const [depositOpen, setDepositOpen] = useState(false);
   const [redeemOpen, setRedeemOpen] = useState(false);
 
   const isLoading = stateLoading || vaultsLoading;
+  const hasError = !isLoading && (!!stateError || !!vaultsError);
 
   const tvl = vaultState ? Number(vaultState.totalAssets) / 10 ** vault.decimals : 0;
-  const vaultStats = vaultsList?.find(
-    (v: { id: string }) => v.id.toLowerCase() === vault.id.toLowerCase()
-  );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const vaultStats = vaultsList?.find((v: any) => v.id.toLowerCase() === vault.id.toLowerCase());
   const apy = vaultStats?.yield?.["7d"] ? parseFloat(vaultStats.yield["7d"]) : 0;
 
   const userShares = position?.shares ?? 0n;
@@ -35,10 +39,11 @@ export function VaultCard({ vault }: { vault: VaultConfig }) {
   return (
     <>
       <div
-        className="rounded-2xl p-5 mb-3"
+        className="rounded-2xl p-5 mb-3 animate-slide-up"
         style={{
           background: "var(--color-n-surface)",
           border: "1px solid var(--color-n-border)",
+          animationDelay: `${index * 0.08}s`,
         }}
       >
         {/* Header row */}
@@ -70,26 +75,42 @@ export function VaultCard({ vault }: { vault: VaultConfig }) {
           {/* APY badge */}
           <div className="text-right">
             {isLoading ? (
-              <div className="h-8 w-16 rounded-lg animate-pulse"
-                style={{ background: "var(--color-n-card)" }} />
+              <div className="h-8 w-16 rounded-lg animate-shimmer mb-0.5" />
+            ) : hasError ? (
+              <span className="text-lg font-black" style={{ color: "var(--color-n-muted)" }}>—</span>
             ) : (
               <span
-                className="text-2xl font-black"
+                className="text-2xl font-black animate-num-pop"
                 style={{ color: apy > 0 ? "var(--color-n-accent)" : "var(--color-n-muted)" }}
               >
                 {formatPercent(apy, 2)}
               </span>
             )}
-            <div className="text-[10px] font-medium" style={{ color: "var(--color-n-muted)" }}>
-              APY
-            </div>
+            <div className="text-[10px] font-medium" style={{ color: "var(--color-n-muted)" }}>APY</div>
           </div>
         </div>
 
-        {/* Earnings preview */}
-        {apy > 0 && !isLoading && (
+        {/* Error state */}
+        {hasError && (
           <div
-            className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between"
+            className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between animate-fade-in"
+            style={{ background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.18)" }}
+          >
+            <span className="text-xs text-red-400">Failed to load vault data</span>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg"
+              style={{ background: "rgba(239,68,68,0.12)", color: "#f87171" }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Earnings preview */}
+        {apy > 0 && !isLoading && !hasError && (
+          <div
+            className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between animate-fade-in"
             style={{ background: "var(--color-n-card)" }}
           >
             <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>
@@ -103,32 +124,31 @@ export function VaultCard({ vault }: { vault: VaultConfig }) {
 
         {/* Stats row */}
         <div className="flex gap-3 mb-4">
-          <div className="flex-1 rounded-xl px-3 py-2.5"
-            style={{ background: "var(--color-n-card)" }}>
-            <div className="text-[10px] uppercase tracking-wider mb-0.5"
-              style={{ color: "var(--color-n-muted)" }}>TVL</div>
+          <div className="flex-1 rounded-xl px-3 py-2.5" style={{ background: "var(--color-n-card)" }}>
+            <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "var(--color-n-muted)" }}>
+              TVL
+            </div>
             {isLoading ? (
-              <div className="h-5 w-16 rounded animate-pulse"
-                style={{ background: "var(--color-n-border)" }} />
+              <div className="h-5 w-16 rounded animate-shimmer" />
+            ) : hasError ? (
+              <div className="text-sm font-bold" style={{ color: "var(--color-n-muted)" }}>—</div>
             ) : (
-              <div className="text-sm font-bold" style={{ color: "var(--color-n-text)" }}>
+              <div className="text-sm font-bold animate-fade-in" style={{ color: "var(--color-n-text)" }}>
                 {vault.id === "yoUSD"
                   ? formatTVL(tvl)
-                  : `${tvl.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${vault.asset}`}
+                  : `${tvl.toLocaleString("en-US", { maximumFractionDigits: 4 })} ${vault.asset}`}
               </div>
             )}
           </div>
 
           {hasPosition && (
             <div
-              className="flex-1 rounded-xl px-3 py-2.5"
-              style={{
-                background: "var(--color-n-card)",
-                border: `1px solid ${vault.accent}30`,
-              }}
+              className="flex-1 rounded-xl px-3 py-2.5 animate-fade-in"
+              style={{ background: "var(--color-n-card)", border: `1px solid ${vault.accent}30` }}
             >
-              <div className="text-[10px] uppercase tracking-wider mb-0.5"
-                style={{ color: "var(--color-n-muted)" }}>Your deposit</div>
+              <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "var(--color-n-muted)" }}>
+                Your deposit
+              </div>
               <div className="text-sm font-bold" style={{ color: vault.accent }}>
                 {formatAmount(userAssets, vault.decimals, 2)} {vault.asset}
               </div>
@@ -141,10 +161,7 @@ export function VaultCard({ vault }: { vault: VaultConfig }) {
           <button
             onClick={() => setDepositOpen(true)}
             className="flex-1 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
-            style={{
-              background: "var(--color-n-accent)",
-              color: "#000",
-            }}
+            style={{ background: "var(--color-n-accent)", color: "#000" }}
           >
             Deposit
           </button>
