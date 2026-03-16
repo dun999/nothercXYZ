@@ -31,27 +31,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         }} />
 
         <div className="flex flex-col items-center gap-6">
-          <div
-            className="flex items-center justify-center"
-            style={{
-              width: 64, height: 64,
-              background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-              borderRadius: 18,
-              boxShadow: "0 8px 32px var(--color-n-accent-glow)",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 22,
-                fontWeight: 900,
-                color: "#000",
-                letterSpacing: "-0.04em",
-                fontStyle: "italic",
-              }}
-            >
-              N
-            </span>
-          </div>
+          <img src="/logo.svg" alt="Notherc" width={64} height={64} style={{ borderRadius: 18 }} />
 
           <div className="flex gap-1.5">
             {[0, 1, 2].map((i) => (

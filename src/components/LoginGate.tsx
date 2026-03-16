@@ -51,27 +51,7 @@ export function LoginGate() {
               background: "radial-gradient(circle, var(--color-n-accent-glow) 0%, transparent 70%)",
             }}
           />
-          <div
-            className="relative flex items-center justify-center"
-            style={{
-              width: 72, height: 72,
-              background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-              borderRadius: 20,
-              boxShadow: "0 8px 32px var(--color-n-accent-glow)",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 26,
-                fontWeight: 900,
-                color: "#000",
-                letterSpacing: "-0.04em",
-                fontStyle: "italic",
-              }}
-            >
-              N
-            </span>
-          </div>
+          <img src="/logo.svg" alt="Notherc" width={72} height={72} className="relative" style={{ borderRadius: 20 }} />
         </div>
 
         <h1
@@ -123,7 +103,7 @@ export function LoginGate() {
             className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.98]"
             style={{
               background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-              color: "#000",
+              color: "var(--color-n-on-accent)",
               boxShadow: "0 4px 20px var(--color-n-accent-glow)",
             }}
           >
