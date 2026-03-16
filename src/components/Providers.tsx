@@ -33,12 +33,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <PrivyProvider
         appId={PRIVY_APP_ID}
         config={{
-          loginMethods: ["email", "wallet"],
+          loginMethods: ["wallet"],
           appearance: {
             theme: "dark",
             accentColor: "#c8b485",
-            showWalletLoginFirst: false,
-            loginMessage: "Powered by YO Protocol SDK",
             walletList: [
               "detected_wallets",
               "metamask",
@@ -48,10 +46,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
               "okx_wallet",
             ],
             walletChainType: "ethereum-only",
-          },
-          embeddedWallets: {
-            createOnLogin: "users-without-wallets",
-            requireUserPasswordOnCreate: false,
           },
           defaultChain: base,
           supportedChains: [base],

@@ -3,19 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePrivy } from "@privy-io/react-auth";
 import { useTheme } from "./ThemeProvider";
-import { SendSheet } from "./SendSheet";
 import { TWITTER_URL } from "@/lib/constants";
 
 export function HamburgerMenu() {
   const [open, setOpen] = useState(false);
-  const [sendOpen, setSendOpen] = useState(false);
   const pathname = usePathname();
   const { logout } = usePrivy();
   const { theme, toggle } = useTheme();
-  const { wallets } = useWallets();
-  const hasEmbeddedWallet = wallets.some((w) => w.walletClientType === "privy");
 
   const TABS = [
     { href: "/", label: "Earn" },
@@ -23,8 +19,6 @@ export function HamburgerMenu() {
   ];
 
   return (
-    <>
-    <SendSheet open={sendOpen} onClose={() => setSendOpen(false)} />
     <div className="relative">
       {/* Backdrop */}
       {open && (
@@ -94,25 +88,6 @@ export function HamburgerMenu() {
             );
           })}
 
-          {/* Send tokens — only for embedded wallet (email) users */}
-          {hasEmbeddedWallet && (
-            <button
-              onClick={() => { setSendOpen(true); setOpen(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold"
-              style={{
-                color: "var(--color-n-text)",
-                borderBottom: "1px solid var(--color-n-border)",
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m22 2-7 20-4-9-9-4Z" />
-                <path d="M22 2 11 13" />
-              </svg>
-              Send to wallet
-            </button>
-          )}
-
           {/* Theme toggle */}
           <button
             onClick={toggle}
@@ -174,6 +149,5 @@ export function HamburgerMenu() {
         </div>
       )}
     </div>
-    </>
   );
 }

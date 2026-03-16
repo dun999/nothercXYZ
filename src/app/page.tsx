@@ -1,6 +1,5 @@
 "use client";
 
-import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 import { useVaults } from "@yo-protocol/react";
 import { VaultCard } from "@/components/VaultCard";
@@ -40,20 +39,9 @@ function BestApy() {
 }
 
 export default function HomePage() {
-  const { user } = usePrivy();
-  const { wallets } = useWallets();
-  const { address: wagmiAddress } = useAccount();
+  const { address } = useAccount();
 
-  const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
-  const address = user?.email
-    ? (embeddedWallet?.address ?? wagmiAddress)
-    : wagmiAddress;
-
-  const displayName = user?.email?.address
-    ? user.email.address.split("@")[0]
-    : address
-      ? shortenAddress(address)
-      : "there";
+  const displayName = address ? shortenAddress(address) : "there";
 
   return (
     <div className="px-4 pt-safe pb-safe">
@@ -74,11 +62,6 @@ export default function HomePage() {
             <div className="text-sm font-bold" style={{ color: "var(--color-n-text)" }}>
               Notherc
             </div>
-            {address && (
-              <div className="text-[10px] font-mono" style={{ color: "var(--color-n-muted)" }}>
-                {shortenAddress(address)}
-              </div>
-            )}
           </div>
         </div>
 

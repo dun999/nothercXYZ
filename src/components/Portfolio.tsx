@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
 import { formatAmount, formatPercent, shortenAddress } from "@/lib/format";
@@ -151,13 +150,7 @@ function StatCell({
 }
 
 export function Portfolio() {
-  const { address: wagmiAddress } = useAccount();
-  const { wallets } = useWallets();
-  const { user } = usePrivy();
-  const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
-  const address = user?.email
-    ? (embeddedWallet?.address ?? wagmiAddress)
-    : wagmiAddress;
+  const { address } = useAccount();
 
   if (!address) {
     return (

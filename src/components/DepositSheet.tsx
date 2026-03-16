@@ -3,8 +3,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
-import { useFundWallet, usePrivy, useWallets } from "@privy-io/react-auth";
-import { base } from "viem/chains";
 import { parseAmount, formatAmount, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
 import { VAULTS, BASE_CHAIN_ID } from "@/lib/constants";
 import type { VaultId } from "@/lib/constants";
@@ -31,20 +29,10 @@ interface Props {
 export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
-  const [copied, setCopied] = useState(false);
-  const { address: wagmiAddress, chainId } = useAccount();
+  const { address, chainId } = useAccount();
   const { switchChain } = useSwitchChain();
-  const { user } = usePrivy();
-  const { wallets } = useWallets();
-  const { fundWallet } = useFundWallet();
   const dragStartY = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
-
-  const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
-  const isEmailUser = !!user?.email;
-  const address = isEmailUser
-    ? (embeddedWallet?.address as `0x${string}` | undefined ?? wagmiAddress)
-    : wagmiAddress;
 
   const { balance: tokenBal } = useTokenBalance(vault.assetAddress, address, {
     enabled: !!address && open,
@@ -64,12 +52,10 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
 
   const wrongChain = chainId !== BASE_CHAIN_ID;
   const balanceLoaded = tokenBal !== undefined;
-  const hasBalance = balanceLoaded && tokenBal!.balance > 0n;
   const insufficientBalance = parsedAmount > 0n && balanceLoaded && parsedAmount > tokenBal!.balance;
-  const showFundUI = isEmailUser && balanceLoaded && !hasBalance;
 
   useEffect(() => {
-    if (!open) { setAmount(""); reset?.(); setDragOffset(0); setCopied(false); }
+    if (!open) { setAmount(""); reset?.(); setDragOffset(0); }
   }, [open, reset]);
 
   const onTouchStart = (e: React.TouchEvent) => { dragStartY.current = e.touches[0].clientY; };
@@ -84,21 +70,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
     if (wrongChain) { switchChain?.({ chainId: BASE_CHAIN_ID }); return; }
     await deposit({ token: vault.assetAddress, amount: parsedAmount, chainId: BASE_CHAIN_ID });
   }, [deposit, parsedAmount, vault.assetAddress, insufficientBalance, wrongChain, switchChain]);
-
-  const handleCopyAddress = () => {
-    if (!embeddedWallet?.address) return;
-    navigator.clipboard.writeText(embeddedWallet.address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleFundWallet = () => {
-    if (!embeddedWallet) return;
-    fundWallet(embeddedWallet.address, {
-      chain: base,
-      asset: vault.asset === "USDC" ? "USDC" : "native-currency",
-    });
-  };
 
   const maxBal = tokenBal
     ? (Number(tokenBal.balance) / 10 ** vault.decimals).toString()
@@ -174,90 +145,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
               </button>
             </div>
 
-            {showFundUI ? (
-              <div className="space-y-3">
-                <div
-                  className="rounded-2xl p-4"
-                  style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
-                >
-                  <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>
-                    Your wallet has no {vault.asset}
-                  </p>
-                  <p className="text-xs mb-3" style={{ color: "var(--color-n-muted)" }}>
-                    Send {vault.asset} to your Notherc wallet on Base, or buy directly with a card.
-                  </p>
-
-                  {embeddedWallet ? (
-                    <div
-                      className="rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-2"
-                      style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
-                    >
-                      <span className="text-xs font-mono truncate" style={{ color: "var(--color-n-muted)" }}>
-                        {embeddedWallet.address}
-                      </span>
-                      <button
-                        onClick={handleCopyAddress}
-                        className="shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-                        style={{
-                          background: copied ? "rgba(34,197,94,0.15)" : "var(--color-n-card)",
-                          color: copied ? "#22C55E" : "var(--color-n-accent)",
-                          border: `1px solid ${copied ? "rgba(34,197,94,0.3)" : "var(--color-n-border)"}`,
-                        }}
-                      >
-                        {copied ? (
-                          <>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M20 6 9 17l-5-5" />
-                            </svg>
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                            </svg>
-                            Copy
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="rounded-xl mb-3 animate-pulse"
-                      style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)", height: 40 }} />
-                  )}
-
-                  <p className="text-[10px] mb-3" style={{ color: "var(--color-n-muted)" }}>
-                    Send on <span style={{ color: "var(--color-n-accent)" }}>Base network</span> only.
-                  </p>
-
-                  <button
-                    onClick={handleFundWallet}
-                    disabled={!embeddedWallet}
-                    className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40"
-                    style={{
-                      background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-                      color: "#000",
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect width="20" height="14" x="2" y="5" rx="2" />
-                      <path d="M2 10h20" />
-                    </svg>
-                    Buy {vault.asset} with card
-                  </button>
-                </div>
-
-                <p className="text-xs text-center" style={{ color: "var(--color-n-muted)" }}>
-                  Already funded? Close and reopen this sheet to refresh.
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="mb-4">
+            <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>Amount</span>
                     <button
@@ -380,9 +268,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                     </a>
                   </div>
                 )}
-              </>
-            )}
-
             <p className="text-xs text-center mt-4 mb-2" style={{ color: "var(--color-n-muted)" }}>
               ERC-4626 vault on Base. Non-custodial, the contract holds your funds.
             </p>
