@@ -2,7 +2,6 @@
 
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { ThemeSlide } from "@/components/ThemeSlide";
-import { FAQ } from "@/components/FAQ";
 import { TWITTER_URL } from "@/lib/constants";
 
 export default function AboutPage() {
@@ -39,11 +38,6 @@ export default function AboutPage() {
           and under your control. No companies hold your funds. No hidden fees.
           Withdraw any time.
         </p>
-      </div>
-
-      {/* FAQ */}
-      <div className="mb-8">
-        <FAQ />
       </div>
 
       {/* Follow on X */}
