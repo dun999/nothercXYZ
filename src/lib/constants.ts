@@ -35,17 +35,30 @@ export const VAULTS = [
     riskColor: "#c8a07a",
     accent: "#c8a07a",
   },
+  {
+    id: "yoEUR",
+    name: "yoEUR",
+    label: "Euro",
+    description: "Earn yield on EURC",
+    asset: "EURC",
+    assetAddress: "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42" as `0x${string}`,
+    decimals: 6,
+    riskLevel: "Low" as const,
+    riskColor: "#7bc49e",
+    accent: "#6ea8d8",
+  },
 ] as const;
 
 export const VAULT_ADDRESSES: Record<string, `0x${string}`> = {
   yoUSD: "0x0000000f2eB9f69274678c76222B35eEc7588a65",
   yoETH: "0x3a43aec53490cb9fa922847385d82fe25d0e9de7",
   yoBTC: "0xbCbc8cb4D1e8ED048a6276a5E94A3e952660BcbC",
+  yoEUR: "0x50c749ae210d3977adc824ae11f3c7fd10c871e9",
 };
 
 export const BASE_CHAIN_ID = 8453;
 
 export const TWITTER_URL = "https://x.com/nothercxyz?s=21";
 
-export type VaultId = "yoUSD" | "yoETH" | "yoBTC";
+export type VaultId = "yoUSD" | "yoETH" | "yoBTC" | "yoEUR";
 export type VaultConfig = (typeof VAULTS)[number];

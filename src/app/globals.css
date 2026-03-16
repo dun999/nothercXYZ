@@ -1,39 +1,39 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-    "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", "Segoe UI Variable Display", "Segoe UI", Arial, sans-serif;
 }
 
 /* ── Color tokens — dark mode defaults ── */
 :root {
-  --color-n-bg:           #080808;
-  --color-n-surface:      #111111;
-  --color-n-card:         #1c1c1c;
-  --color-n-border:       #2a2a2a;
-  --color-n-text:         #eeeae4;
-  --color-n-muted:        #636363;
-  --color-n-subtle:       #222222;
-  --color-n-accent:       #c8b485;
-  --color-n-accent-dim:   #a8945e;
-  --color-n-accent-glow:  rgba(200, 180, 133, 0.14);
-  --color-n-nav-bg:       rgba(8, 8, 8, 0.94);
-  --color-n-glow-top:     rgba(200, 180, 133, 0.055);
+  --color-n-bg:           #030303;
+  --color-n-surface:      #0A0A0A;
+  --color-n-card:         #111111;
+  --color-n-border:       #1C1C1C;
+  --color-n-text:         #F0EDE8;
+  --color-n-muted:        #484848;
+  --color-n-subtle:       #161616;
+  --color-n-accent:       #00D68F;
+  --color-n-accent-dim:   #00B374;
+  --color-n-accent-glow:  rgba(0, 214, 143, 0.10);
+  --color-n-nav-bg:       rgba(3, 3, 3, 0.96);
+  --color-n-glow-top:     rgba(0, 214, 143, 0.04);
 }
 
 /* ── Light mode overrides ── */
 [data-theme="light"] {
-  --color-n-bg:           #f5f3ef;
-  --color-n-surface:      #ffffff;
-  --color-n-card:         #f0ede7;
-  --color-n-border:       #e0dbd3;
-  --color-n-text:         #141414;
-  --color-n-muted:        #8a8278;
-  --color-n-subtle:       #e8e3da;
-  --color-n-accent:       #8b6c3c;
-  --color-n-accent-dim:   #6b5230;
-  --color-n-accent-glow:  rgba(139, 108, 60, 0.12);
-  --color-n-nav-bg:       rgba(245, 243, 239, 0.94);
+  --color-n-bg:           #F4F4F2;
+  --color-n-surface:      #FFFFFF;
+  --color-n-card:         #EEEEEC;
+  --color-n-border:       #E0E0DE;
+  --color-n-text:         #0A0A0A;
+  --color-n-muted:        #7A7A7A;
+  --color-n-subtle:       #E8E8E6;
+  --color-n-accent:       #007A52;
+  --color-n-accent-dim:   #005C3D;
+  --color-n-accent-glow:  rgba(0, 122, 82, 0.10);
+  --color-n-nav-bg:       rgba(244, 244, 242, 0.96);
   --color-n-glow-top:     transparent;
 }
 
