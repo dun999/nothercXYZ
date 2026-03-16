@@ -32,7 +32,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
   const [copied, setCopied] = useState(false);
-  const { address, chainId } = useAccount();
+  const { address: wagmiAddress, chainId } = useAccount();
   const { switchChain } = useSwitchChain();
   const { user } = usePrivy();
   const { wallets } = useWallets();
@@ -42,7 +42,9 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
 
   const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
   const isEmailUser = !!user?.email;
-  const walletReady = !!embeddedWallet;
+  const address = isEmailUser
+    ? (embeddedWallet?.address as `0x${string}` | undefined ?? wagmiAddress)
+    : wagmiAddress;
 
   const { balance: tokenBal } = useTokenBalance(vault.assetAddress, address, {
     enabled: !!address && open,
@@ -137,7 +139,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
           overflow: "hidden",
         }}
       >
-        {/* Drag handle */}
         <div
           className="flex justify-center pt-3 pb-2 shrink-0"
           style={{ touchAction: "none", cursor: "grab" }}
@@ -148,283 +149,256 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
           <div className="w-10 h-1 rounded-full" style={{ background: "var(--color-n-border)" }} />
         </div>
 
-        {/* Scrollable content */}
         <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", flex: "1 1 auto", minHeight: 0, touchAction: "pan-y" }}>
-        <div className="px-5 pt-1" style={{ paddingBottom: "calc(72px + env(safe-area-inset-bottom))" }}>
-          {/* Title */}
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-xl font-bold" style={{ color: "var(--color-n-text)" }}>
-                Deposit {vault.asset}
-              </h2>
-              <p className="text-sm" style={{ color: "var(--color-n-muted)" }}>
-                {vault.name}, Base network
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ background: "var(--color-n-card)" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="var(--color-n-muted)" strokeWidth="2.5"
-                strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+          <div className="px-5 pt-1" style={{ paddingBottom: "calc(72px + env(safe-area-inset-bottom))" }}>
 
-          {/* Fund wallet UI — email users with zero balance */}
-          {showFundUI ? (
-            <div className="space-y-3">
-              <div
-                className="rounded-2xl p-4"
-                style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-xl font-bold" style={{ color: "var(--color-n-text)" }}>
+                  Deposit {vault.asset}
+                </h2>
+                <p className="text-sm" style={{ color: "var(--color-n-muted)" }}>
+                  {vault.name}, Base network
+                </p>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{ background: "var(--color-n-card)" }}
               >
-                <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>
-                  Your wallet has no {vault.asset}
-                </p>
-                <p className="text-xs mb-3" style={{ color: "var(--color-n-muted)" }}>
-                  Send {vault.asset} to your Notherc wallet on Base, or buy directly with a card.
-                </p>
-
-                {/* Wallet address */}
-                {walletReady ? (
-                  <div
-                    className="rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-2"
-                    style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
-                  >
-                    <span className="text-xs font-mono truncate" style={{ color: "var(--color-n-muted)" }}>
-                      {embeddedWallet!.address}
-                    </span>
-                    <button
-                      onClick={handleCopyAddress}
-                      className="shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-                      style={{
-                        background: copied ? "rgba(34,197,94,0.15)" : "var(--color-n-card)",
-                        color: copied ? "#22C55E" : "var(--color-n-accent)",
-                        border: `1px solid ${copied ? "rgba(34,197,94,0.3)" : "var(--color-n-border)"}`,
-                      }}
-                    >
-                      {copied ? (
-                        <>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 6 9 17l-5-5" />
-                          </svg>
-                          Copied
-                        </>
-                      ) : (
-                        <>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                          </svg>
-                          Copy
-                        </>
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="rounded-xl px-3 py-2.5 mb-3 animate-pulse"
-                    style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)", height: 40 }} />
-                )}
-
-                <p className="text-[10px] mb-3" style={{ color: "var(--color-n-muted)" }}>
-                  Make sure to send on the <span style={{ color: "var(--color-n-accent)" }}>Base network</span> only.
-                </p>
-
-                {/* Buy with card */}
-                <button
-                  onClick={handleFundWallet}
-                  className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
-                  style={{
-                    background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-                    color: "#000",
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect width="20" height="14" x="2" y="5" rx="2" />
-                    <path d="M2 10h20" />
-                  </svg>
-                  Buy {vault.asset} with card
-                </button>
-              </div>
-
-              <p className="text-xs text-center" style={{ color: "var(--color-n-muted)" }}>
-                Already funded?{" "}
-                <button
-                  onClick={() => {}}
-                  style={{ color: "var(--color-n-accent)", textDecoration: "underline" }}
-                >
-                  Refresh balance
-                </button>
-              </p>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="var(--color-n-muted)" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          ) : (
-            <>
-              {/* Amount input */}
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>Amount</span>
-                  <button
-                    className="text-xs font-semibold"
-                    style={{ color: "var(--color-n-accent)" }}
-                    onClick={() => maxBal && setAmount(maxBal)}
-                  >
-                    Balance: {tokenBal ? formatAmount(tokenBal.balance, vault.decimals, 2) : "—"} {vault.asset}
-                  </button>
-                </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    value={amount}
-                    onChange={(e) => {
-                      if (/^\d*\.?\d*$/.test(e.target.value)) {
-                        setAmount(e.target.value);
-                        if (isSuccess || error) reset?.();
-                      }
-                    }}
-                    className="w-full rounded-2xl px-4 py-4 text-2xl font-bold outline-none transition-all"
-                    style={{
-                      background: "var(--color-n-card)",
-                      border: `1.5px solid ${insufficientBalance ? "#EF4444" : "var(--color-n-border)"}`,
-                      color: "var(--color-n-text)",
-                    }}
-                  />
-                  <span
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-base font-semibold"
-                    style={{ color: "var(--color-n-muted)" }}
-                  >
-                    {vault.asset}
-                  </span>
-                </div>
-                {insufficientBalance && (
-                  <p className="text-red-400 text-xs mt-2">Insufficient {vault.asset} balance.</p>
-                )}
-              </div>
 
-              {/* Preview card */}
-              {parsedAmount > 0n && !insufficientBalance && (
+            {showFundUI ? (
+              <div className="space-y-3">
                 <div
-                  className="rounded-2xl p-4 mb-4 space-y-2.5"
-                  style={{ background: "var(--color-n-card)" }}
-                >
-                  <Row
-                    label="You will receive"
-                    value={previewLoading ? "Calculating…" : shares ? `~${formatAmount(shares, vault.decimals, 4)} ${vault.name}` : "—"}
-                  />
-                  <Row label="Current APY" value={apy > 0 ? `${apy.toFixed(2)}%` : "—"} accent />
-                  {yearlyEarnings && (
-                    <Row label="Estimated yearly earnings" value={`~${yearlyEarnings}`} accent />
-                  )}
-                  <Row label="Slippage tolerance" value="0.5%" />
-                  <Row
-                    label="Network"
-                    value={
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live" />
-                        Base
-                      </span>
-                    }
-                  />
-                </div>
-              )}
-
-              {/* Status */}
-              {isActive && (
-                <div
-                  className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
+                  className="rounded-2xl p-4"
                   style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
                 >
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                      style={{ background: "var(--color-n-accent)" }} />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5"
-                      style={{ background: "var(--color-n-accent)" }} />
-                  </span>
-                  <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
-                    {STEP_LABEL[txStep]}
-                  </span>
-                </div>
-              )}
+                  <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>
+                    Your wallet has no {vault.asset}
+                  </p>
+                  <p className="text-xs mb-3" style={{ color: "var(--color-n-muted)" }}>
+                    Send {vault.asset} to your Notherc wallet on Base, or buy directly with a card.
+                  </p>
 
-              {/* CTA */}
-              <button
-                onClick={handleDeposit}
-                disabled={buttonDisabled}
-                className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
-                style={{
-                  background: isSuccess ? "#22C55E"
-                    : wrongChain ? "#3B82F6"
-                      : "var(--color-n-accent)",
-                  color: "#000",
-                  cursor: buttonDisabled ? "not-allowed" : "pointer",
-                }}
-              >
-                {buttonLabel}
-              </button>
+                  {embeddedWallet ? (
+                    <div
+                      className="rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-2"
+                      style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
+                    >
+                      <span className="text-xs font-mono truncate" style={{ color: "var(--color-n-muted)" }}>
+                        {embeddedWallet.address}
+                      </span>
+                      <button
+                        onClick={handleCopyAddress}
+                        className="shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+                        style={{
+                          background: copied ? "rgba(34,197,94,0.15)" : "var(--color-n-card)",
+                          color: copied ? "#22C55E" : "var(--color-n-accent)",
+                          border: `1px solid ${copied ? "rgba(34,197,94,0.3)" : "var(--color-n-border)"}`,
+                        }}
+                      >
+                        {copied ? (
+                          <>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                            </svg>
+                            Copy
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl mb-3 animate-pulse"
+                      style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)", height: 40 }} />
+                  )}
 
-              {/* Error */}
-              {error && (
-                <div className="mt-3 rounded-xl px-4 py-3"
-                  style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                  <p className="text-red-400 text-sm">{parseErrorMessage(error)}</p>
-                  <button onClick={() => reset?.()} className="text-xs text-red-400/70 underline mt-1">
-                    Try again
+                  <p className="text-[10px] mb-3" style={{ color: "var(--color-n-muted)" }}>
+                    Send on <span style={{ color: "var(--color-n-accent)" }}>Base network</span> only.
+                  </p>
+
+                  <button
+                    onClick={handleFundWallet}
+                    disabled={!embeddedWallet}
+                    className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40"
+                    style={{
+                      background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
+                      color: "#000",
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="20" height="14" x="2" y="5" rx="2" />
+                      <path d="M2 10h20" />
+                    </svg>
+                    Buy {vault.asset} with card
                   </button>
                 </div>
-              )}
 
-              {/* Success */}
-              {isSuccess && hash && (
-                <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
-                  style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
-                  <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
-                  <a
-                    href={`https://basescan.org/tx/${hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--color-n-accent)" }}
-                  >
-                    View tx
-                  </a>
+                <p className="text-xs text-center" style={{ color: "var(--color-n-muted)" }}>
+                  Already funded? Close and reopen this sheet to refresh.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>Amount</span>
+                    <button
+                      className="text-xs font-semibold"
+                      style={{ color: "var(--color-n-accent)" }}
+                      onClick={() => maxBal && setAmount(maxBal)}
+                    >
+                      Balance: {tokenBal ? formatAmount(tokenBal.balance, vault.decimals, 2) : "—"} {vault.asset}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => {
+                        if (/^\d*\.?\d*$/.test(e.target.value)) {
+                          setAmount(e.target.value);
+                          if (isSuccess || error) reset?.();
+                        }
+                      }}
+                      className="w-full rounded-2xl px-4 py-4 text-2xl font-bold outline-none transition-all"
+                      style={{
+                        background: "var(--color-n-card)",
+                        border: `1.5px solid ${insufficientBalance ? "#EF4444" : "var(--color-n-border)"}`,
+                        color: "var(--color-n-text)",
+                      }}
+                    />
+                    <span
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-base font-semibold"
+                      style={{ color: "var(--color-n-muted)" }}
+                    >
+                      {vault.asset}
+                    </span>
+                  </div>
+                  {insufficientBalance && (
+                    <p className="text-red-400 text-xs mt-2">Insufficient {vault.asset} balance.</p>
+                  )}
                 </div>
-              )}
-            </>
-          )}
 
-          <p className="text-xs text-center mt-4 mb-2" style={{ color: "var(--color-n-muted)" }}>
-            ERC-4626 vault on Base. Non-custodial, the contract holds your funds.
-          </p>
-        </div>
+                {parsedAmount > 0n && !insufficientBalance && (
+                  <div
+                    className="rounded-2xl p-4 mb-4 space-y-2.5"
+                    style={{ background: "var(--color-n-card)" }}
+                  >
+                    <Row
+                      label="You will receive"
+                      value={previewLoading ? "Calculating…" : shares ? `~${formatAmount(shares, vault.decimals, 4)} ${vault.name}` : "—"}
+                    />
+                    <Row label="Current APY" value={apy > 0 ? `${apy.toFixed(2)}%` : "—"} accent />
+                    {yearlyEarnings && (
+                      <Row label="Estimated yearly earnings" value={`~${yearlyEarnings}`} accent />
+                    )}
+                    <Row label="Slippage tolerance" value="0.5%" />
+                    <Row
+                      label="Network"
+                      value={
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live" />
+                          Base
+                        </span>
+                      }
+                    />
+                  </div>
+                )}
+
+                {isActive && (
+                  <div
+                    className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
+                    style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
+                  >
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                        style={{ background: "var(--color-n-accent)" }} />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5"
+                        style={{ background: "var(--color-n-accent)" }} />
+                    </span>
+                    <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
+                      {STEP_LABEL[txStep]}
+                    </span>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleDeposit}
+                  disabled={buttonDisabled}
+                  className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
+                  style={{
+                    background: isSuccess ? "#22C55E" : wrongChain ? "#3B82F6" : "var(--color-n-accent)",
+                    color: "#000",
+                    cursor: buttonDisabled ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {buttonLabel}
+                </button>
+
+                {error && (
+                  <div className="mt-3 rounded-xl px-4 py-3"
+                    style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                    <p className="text-red-400 text-sm">{parseErrorMessage(error)}</p>
+                    <button onClick={() => reset?.()} className="text-xs text-red-400/70 underline mt-1">
+                      Try again
+                    </button>
+                  </div>
+                )}
+
+                {isSuccess && hash && (
+                  <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
+                    style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
+                    <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
+                    <a
+                      href={`https://basescan.org/tx/${hash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold"
+                      style={{ color: "var(--color-n-accent)" }}
+                    >
+                      View tx
+                    </a>
+                  </div>
+                )}
+              </>
+            )}
+
+            <p className="text-xs text-center mt-4 mb-2" style={{ color: "var(--color-n-muted)" }}>
+              ERC-4626 vault on Base. Non-custodial, the contract holds your funds.
+            </p>
+          </div>
         </div>
       </div>
     </>
   );
 }
 
-function Row({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: React.ReactNode;
-  accent?: boolean;
-}) {
+function Row({ label, value, accent }: { label: string; value: React.ReactNode; accent?: boolean }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>{label}</span>
-      <span
-        className="text-sm font-semibold"
-        style={{ color: accent ? "var(--color-n-accent)" : "var(--color-n-text)" }}
-      >
+      <span className="text-sm font-semibold"
+        style={{ color: accent ? "var(--color-n-accent)" : "var(--color-n-text)" }}>
         {value}
       </span>
     </div>
