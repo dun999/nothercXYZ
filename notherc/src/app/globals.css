@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ── Color tokens — dark mode defaults ── */
+:root {
+  --color-n-bg:           #080808;
+  --color-n-surface:      #111111;
+  --color-n-card:         #1c1c1c;
+  --color-n-border:       #2a2a2a;
+  --color-n-text:         #eeeae4;
+  --color-n-muted:        #636363;
+  --color-n-subtle:       #222222;
+  --color-n-accent:       #c8b485;
+  --color-n-accent-dim:   #a8945e;
+  --color-n-accent-glow:  rgba(200, 180, 133, 0.14);
+  --color-n-nav-bg:       rgba(8, 8, 8, 0.94);
+  --color-n-glow-top:     rgba(200, 180, 133, 0.055);
+}
+
+/* ── Light mode overrides ── */
+[data-theme="light"] {
+  --color-n-bg:           #f5f3ef;
+  --color-n-surface:      #ffffff;
+  --color-n-card:         #f0ede7;
+  --color-n-border:       #e0dbd3;
+  --color-n-text:         #141414;
+  --color-n-muted:        #8a8278;
+  --color-n-subtle:       #e8e3da;
+  --color-n-accent:       #8b6c3c;
+  --color-n-accent-dim:   #6b5230;
+  --color-n-accent-glow:  rgba(139, 108, 60, 0.12);
+  --color-n-nav-bg:       rgba(245, 243, 239, 0.94);
+  --color-n-glow-top:     transparent;
+}
+
+/* ── Mobile-first reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--color-n-bg);
+  color: var(--color-n-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Ambient top glow ── */
+body::before {
+  content: "";
+  position: fixed;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80vw;
+  height: 40vh;
+  background: radial-gradient(
+    ellipse at center top,
+    var(--color-n-glow-top) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+body > * { position: relative; z-index: 1; }
+
+/* ── Tap feedback ── */
+button, a {
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+button:active:not(:disabled), a:active {
+  opacity: 0.75;
+  transform: scale(0.98);
+}
+
+/* ── Focus ring ── */
+:focus-visible {
+  outline: 2px solid var(--color-n-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Safe area helpers ── */
+.pb-safe  { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
+.pt-safe  { padding-top: env(safe-area-inset-top, 0px); }
+.mb-nav   { margin-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
+
+/* ── Sheet backdrop ── */
+.sheet-backdrop {
+  backdrop-filter: blur(8px) saturate(1.4);
+  -webkit-backdrop-filter: blur(8px) saturate(1.4);
+}
+
+/* ── Page enter animation ── */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.animate-page { animation: page-in 0.22s ease-out both; }
+
+/* ── Live pulse dot ── */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.35; }
+}
+.animate-live { animation: live-pulse 2s ease-in-out infinite; }
+
+/* ── Scrollbar (desktop preview) ── */
+::-webkit-scrollbar       { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-n-border); border-radius: 2px; }
+
+/* ── Hide number spinners ── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }

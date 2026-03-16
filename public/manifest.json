@@ -1,0 +1,10 @@
+{
+  "name": "Notherc",
+  "short_name": "Notherc",
+  "description": "Earn yield on USDC, ETH, and BTC. Non-custodial, no lock-up.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "icons": []
+}
