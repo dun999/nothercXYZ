@@ -1,6 +1,6 @@
 "use client";
 
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 import { useVaults } from "@yo-protocol/react";
 import { VaultCard } from "@/components/VaultCard";
@@ -41,7 +41,13 @@ function BestApy() {
 
 export default function HomePage() {
   const { user } = usePrivy();
-  const { address } = useAccount();
+  const { wallets } = useWallets();
+  const { address: wagmiAddress } = useAccount();
+
+  const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
+  const address = user?.email
+    ? (embeddedWallet?.address ?? wagmiAddress)
+    : wagmiAddress;
 
   const displayName = user?.email?.address
     ? user.email.address.split("@")[0]
@@ -51,7 +57,6 @@ export default function HomePage() {
 
   return (
     <div className="px-4 pt-safe pb-safe">
-      {/* Top bar */}
       <div className="flex items-center justify-between py-4">
         <div className="flex items-center gap-2.5">
           <div
@@ -69,13 +74,17 @@ export default function HomePage() {
             <div className="text-sm font-bold" style={{ color: "var(--color-n-text)" }}>
               Notherc
             </div>
+            {address && (
+              <div className="text-[10px] font-mono" style={{ color: "var(--color-n-muted)" }}>
+                {shortenAddress(address)}
+              </div>
+            )}
           </div>
         </div>
 
         <HamburgerMenu />
       </div>
 
-      {/* Hero */}
       <div className="mb-6">
         <h1 className="text-3xl font-black leading-tight mb-2" style={{ color: "var(--color-n-text)" }}>
           Your crypto{" "}
@@ -102,7 +111,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* How it works */}
       <div
         className="rounded-2xl p-4 mb-5"
         style={{
@@ -134,7 +142,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Vault cards */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold" style={{ color: "var(--color-n-text)" }}>
