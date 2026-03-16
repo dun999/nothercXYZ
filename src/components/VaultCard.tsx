@@ -5,6 +5,7 @@ import { useVaultState, useVaults, useUserPosition } from "@yo-protocol/react";
 import { useAccount } from "wagmi";
 import { formatAmount, formatTVL, formatPercent, estimateYearlyEarnings } from "@/lib/format";
 import { DepositSheet } from "./DepositSheet";
+import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
 import type { VaultConfig } from "@/lib/constants";
 
@@ -15,6 +16,7 @@ export function VaultCard({ vault }: { vault: VaultConfig }) {
   const { position } = useUserPosition(vault.id, address!, { enabled: !!address });
 
   const [depositOpen, setDepositOpen] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
 
   const isLoading = stateLoading || vaultsLoading;
 
@@ -146,6 +148,19 @@ export function VaultCard({ vault }: { vault: VaultConfig }) {
           >
             Deposit
           </button>
+          {hasPosition && (
+            <button
+              onClick={() => setRedeemOpen(true)}
+              className="flex-1 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
+              style={{
+                background: "var(--color-n-card)",
+                color: "var(--color-n-text)",
+                border: "1px solid var(--color-n-border)",
+              }}
+            >
+              Withdraw
+            </button>
+          )}
         </div>
       </div>
 
@@ -154,6 +169,11 @@ export function VaultCard({ vault }: { vault: VaultConfig }) {
         onClose={() => setDepositOpen(false)}
         vaultId={vault.id}
         apy={apy}
+      />
+      <RedeemSheet
+        open={redeemOpen}
+        onClose={() => setRedeemOpen(false)}
+        vaultId={vault.id}
       />
     </>
   );
