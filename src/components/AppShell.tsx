@@ -44,7 +44,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
               style={{
                 fontSize: 22,
                 fontWeight: 900,
-                color: "#000",
+                color: "var(--color-n-on-accent)",
                 letterSpacing: "-0.04em",
                 fontStyle: "italic",
               }}

@@ -29,7 +29,7 @@ export default function AboutPage() {
               background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
             }}
           >
-            <span style={{ fontSize: 18, fontWeight: 900, color: "#000", fontStyle: "italic" }}>N</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: "var(--color-n-on-accent)", fontStyle: "italic" }}>N</span>
           </div>
           <div>
             <div className="font-bold" style={{ color: "var(--color-n-text)" }}>Notherc</div>

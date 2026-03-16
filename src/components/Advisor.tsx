@@ -125,14 +125,14 @@ function AdvisorQuiz() {
                 style={{
                   background: amount === v ? "var(--color-n-accent)" : "var(--color-n-card)",
                   border: "1px solid var(--color-n-border)",
-                  color: amount === v ? "#000" : "var(--color-n-muted)",
+                  color: amount === v ? "var(--color-n-on-accent)" : "var(--color-n-muted)",
                 }}
               >${parseInt(v).toLocaleString()}</button>
             ))}
           </div>
           <button onClick={() => amount && setStep("risk")} disabled={!amount}
             className="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-40"
-            style={{ background: "var(--color-n-accent)", color: "#000" }}>Continue</button>
+            style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}>Continue</button>
           <button onClick={() => setStep("goal")} className="w-full mt-2 py-2 text-xs text-center" style={{ color: "var(--color-n-muted)" }}>← Back</button>
         </div>
       )}
@@ -161,7 +161,7 @@ function AdvisorQuiz() {
           </div>
           <button onClick={() => risk && setStep("result")} disabled={!risk}
             className="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-40"
-            style={{ background: "var(--color-n-accent)", color: "#000" }}>See recommendation</button>
+            style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}>See recommendation</button>
           <button onClick={() => setStep("amount")} className="w-full mt-2 py-2 text-xs text-center" style={{ color: "var(--color-n-muted)" }}>← Back</button>
         </div>
       )}

@@ -161,7 +161,7 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
           <button
             onClick={() => setDepositOpen(true)}
             className="flex-1 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
-            style={{ background: "var(--color-n-accent)", color: "#000" }}
+            style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
           >
             Deposit
           </button>

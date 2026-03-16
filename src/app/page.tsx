@@ -54,7 +54,7 @@ export default function HomePage() {
               background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
             }}
           >
-            <span className="text-xs font-black" style={{ color: "#000", fontStyle: "italic" }}>N</span>
+            <span className="text-xs font-black" style={{ color: "var(--color-n-on-accent)", fontStyle: "italic" }}>N</span>
           </div>
           <div>
             <span className="text-xs" style={{ color: "var(--color-n-muted)" }}>

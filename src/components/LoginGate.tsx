@@ -64,7 +64,7 @@ export function LoginGate() {
               style={{
                 fontSize: 26,
                 fontWeight: 900,
-                color: "#000",
+                color: "var(--color-n-on-accent)",
                 letterSpacing: "-0.04em",
                 fontStyle: "italic",
               }}
@@ -123,7 +123,7 @@ export function LoginGate() {
             className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.98]"
             style={{
               background: "linear-gradient(135deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)",
-              color: "#000",
+              color: "var(--color-n-on-accent)",
               boxShadow: "0 4px 20px var(--color-n-accent-glow)",
             }}
           >
