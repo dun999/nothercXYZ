@@ -3,6 +3,8 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { AppShell } from "@/components/AppShell";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Notherc, on-chain savings",
   description:

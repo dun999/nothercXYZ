@@ -1,12 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { LoginGate } from "./LoginGate";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
-  const { ready, authenticated } = usePrivy();
+const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
 
-  if (!ready) {
+function AppShellInner({ children }: { children: React.ReactNode }) {
+  const { ready, authenticated } = usePrivy();
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (ready) return;
+    const id = setTimeout(() => setTimedOut(true), 5000);
+    return () => clearTimeout(id);
+  }, [ready]);
+
+  if (!ready && !timedOut) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
@@ -21,7 +31,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }} />
 
         <div className="flex flex-col items-center gap-6">
-          {/* Logo mark */}
           <div
             className="flex items-center justify-center"
             style={{
@@ -44,7 +53,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </div>
 
-          {/* Dot loader */}
           <div className="flex gap-1.5">
             {[0, 1, 2].map((i) => (
               <div
@@ -75,4 +83,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
     </div>
   );
+}
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  if (!PRIVY_APP_ID) {
+    return (
+      <div className="min-h-screen" style={{ background: "var(--color-n-bg)" }}>
+        <main className="max-w-md mx-auto min-h-screen">
+          <div className="min-h-screen animate-page">
+            {children}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return <AppShellInner>{children}</AppShellInner>;
 }
