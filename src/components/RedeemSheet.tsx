@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useRedeem, usePreviewRedeem, useShareBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, parseErrorMessage } from "@/lib/format";
 import { VAULTS } from "@/lib/constants";
@@ -28,18 +27,11 @@ interface Props {
 export function RedeemSheet({ open, onClose, vaultId }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
-  const { address: wagmiAddress } = useAccount();
-  const { user } = usePrivy();
-  const { wallets } = useWallets();
+  const { address } = useAccount();
   const dragStartY = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
 
-  const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
-  const address = user?.email
-    ? (embeddedWallet?.address as `0x${string}` | undefined ?? wagmiAddress)
-    : wagmiAddress;
-
-  const { shares: shareBalance } = useShareBalance(vaultId, address!, {
+  const { shares: shareBalance } = useShareBalance(vaultId, address as `0x${string}`, {
     enabled: !!address && open,
   });
 
