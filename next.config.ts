@@ -1,14 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   turbopack: {
     resolveAlias: {
-      "@react-native-async-storage/async-storage": false,
-      "react-native-encrypted-storage": false,
-      "@react-native-community/netinfo": false,
+      "@react-native-async-storage/async-storage": "./src/lib/empty-module.ts",
+      "react-native-encrypted-storage": "./src/lib/empty-module.ts",
+      "@react-native-community/netinfo": "./src/lib/empty-module.ts",
     },
   },
   webpack: (config) => {
