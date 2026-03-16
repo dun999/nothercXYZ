@@ -30,9 +30,13 @@ const queryClient = new QueryClient({
   },
 });
 
-const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID!;
+const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  if (!PRIVY_APP_ID) {
+    return <ThemeProvider>{children}</ThemeProvider>;
+  }
+
   return (
     <ThemeProvider>
       <PrivyProvider
