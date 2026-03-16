@@ -2,19 +2,19 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
+import { useWallets } from "@privy-io/react-auth";
 import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
-import { formatAmount, formatPercent } from "@/lib/format";
+import { formatAmount, formatPercent, shortenAddress } from "@/lib/format";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
 import type { VaultId } from "@/lib/constants";
 
-function PositionCard({ vaultId }: { vaultId: VaultId }) {
-  const { address } = useAccount();
+function PositionCard({ vaultId, address }: { vaultId: VaultId; address: string }) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
 
-  const { position, isLoading: posLoading } = useUserPosition(vaultId, address!, {
+  const { position, isLoading: posLoading } = useUserPosition(vaultId, address as `0x${string}`, {
     enabled: !!address,
   });
   const { vaultState } = useVaultState(vaultId);
@@ -55,7 +55,6 @@ function PositionCard({ vaultId }: { vaultId: VaultId }) {
           border: "1px solid var(--color-n-border)",
         }}
       >
-        {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <VaultIcon id={vault.id} size={40} />
@@ -78,7 +77,6 @@ function PositionCard({ vaultId }: { vaultId: VaultId }) {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <StatCell label="Deposited">
             {formatAmount(assets, vault.decimals, 4)} {vault.asset}
@@ -94,7 +92,6 @@ function PositionCard({ vaultId }: { vaultId: VaultId }) {
           </StatCell>
         </div>
 
-        {/* Withdraw CTA */}
         <button
           onClick={() => setRedeemOpen(true)}
           className="w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] border"
@@ -107,7 +104,6 @@ function PositionCard({ vaultId }: { vaultId: VaultId }) {
           Withdraw
         </button>
 
-        {/* Basescan link */}
         <div className="text-center mt-3">
           <a
             href={`https://basescan.org/address/${VAULT_ADDRESSES[vaultId]}`}
@@ -155,7 +151,10 @@ function StatCell({
 }
 
 export function Portfolio() {
-  const { address } = useAccount();
+  const { address: wagmiAddress } = useAccount();
+  const { wallets } = useWallets();
+  const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
+  const address = wagmiAddress ?? embeddedWallet?.address;
 
   if (!address) {
     return (
@@ -182,8 +181,26 @@ export function Portfolio() {
 
   return (
     <div>
+      <div
+        className="rounded-xl px-3 py-2 mb-4 flex items-center gap-2"
+        style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
+      >
+        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+        <span className="text-xs font-mono" style={{ color: "var(--color-n-muted)" }}>
+          {shortenAddress(address)}
+        </span>
+        <a
+          href={`https://basescan.org/address/${address}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto text-xs"
+          style={{ color: "var(--color-n-accent)" }}
+        >
+          BaseScan ↗
+        </a>
+      </div>
       {VAULTS.map((v) => (
-        <PositionCard key={v.id} vaultId={v.id} />
+        <PositionCard key={v.id} vaultId={v.id} address={address} />
       ))}
     </div>
   );

@@ -41,7 +41,8 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const [dragOffset, setDragOffset] = useState(0);
 
   const embeddedWallet = wallets.find((w) => w.walletClientType === "privy");
-  const isEmailUser = !!user?.email && !!embeddedWallet;
+  const isEmailUser = !!user?.email;
+  const walletReady = !!embeddedWallet;
 
   const { balance: tokenBal } = useTokenBalance(vault.assetAddress, address, {
     enabled: !!address && open,
@@ -60,8 +61,10 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   });
 
   const wrongChain = chainId !== BASE_CHAIN_ID;
-  const hasBalance = tokenBal && tokenBal.balance > 0n;
-  const insufficientBalance = parsedAmount > 0n && tokenBal && parsedAmount > tokenBal.balance;
+  const balanceLoaded = tokenBal !== undefined;
+  const hasBalance = balanceLoaded && tokenBal!.balance > 0n;
+  const insufficientBalance = parsedAmount > 0n && balanceLoaded && parsedAmount > tokenBal!.balance;
+  const showFundUI = isEmailUser && balanceLoaded && !hasBalance;
 
   useEffect(() => {
     if (!open) { setAmount(""); reset?.(); setDragOffset(0); setCopied(false); }
@@ -88,10 +91,9 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   };
 
   const handleFundWallet = () => {
-    if (!embeddedWallet?.address) return;
+    if (!embeddedWallet) return;
     fundWallet(embeddedWallet.address, {
       chain: base,
-      // Fund with the vault's native asset where possible
       asset: vault.asset === "USDC" ? "USDC" : "native-currency",
     });
   };
@@ -114,9 +116,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
       : STEP_LABEL[txStep];
 
   const buttonDisabled = isLoading || parsedAmount === 0n || (!!insufficientBalance && !wrongChain);
-
-  // Show fund wallet UI for email users with zero balance
-  const showFundUI = isEmailUser && !hasBalance;
 
   return (
     <>
@@ -190,45 +189,47 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                 </p>
 
                 {/* Wallet address */}
-                <div
-                  className="rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-2"
-                  style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
-                >
-                  <span
-                    className="text-xs font-mono truncate"
-                    style={{ color: "var(--color-n-muted)" }}
+                {walletReady ? (
+                  <div
+                    className="rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-2"
+                    style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
                   >
-                    {embeddedWallet?.address}
-                  </span>
-                  <button
-                    onClick={handleCopyAddress}
-                    className="shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-                    style={{
-                      background: copied ? "rgba(34,197,94,0.15)" : "var(--color-n-card)",
-                      color: copied ? "#22C55E" : "var(--color-n-accent)",
-                      border: `1px solid ${copied ? "rgba(34,197,94,0.3)" : "var(--color-n-border)"}`,
-                    }}
-                  >
-                    {copied ? (
-                      <>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                          stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M20 6 9 17l-5-5" />
-                        </svg>
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                          stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                        </svg>
-                        Copy
-                      </>
-                    )}
-                  </button>
-                </div>
+                    <span className="text-xs font-mono truncate" style={{ color: "var(--color-n-muted)" }}>
+                      {embeddedWallet!.address}
+                    </span>
+                    <button
+                      onClick={handleCopyAddress}
+                      className="shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+                      style={{
+                        background: copied ? "rgba(34,197,94,0.15)" : "var(--color-n-card)",
+                        color: copied ? "#22C55E" : "var(--color-n-accent)",
+                        border: `1px solid ${copied ? "rgba(34,197,94,0.3)" : "var(--color-n-border)"}`,
+                      }}
+                    >
+                      {copied ? (
+                        <>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20 6 9 17l-5-5" />
+                          </svg>
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                          </svg>
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="rounded-xl px-3 py-2.5 mb-3 animate-pulse"
+                    style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)", height: 40 }} />
+                )}
 
                 <p className="text-[10px] mb-3" style={{ color: "var(--color-n-muted)" }}>
                   Make sure to send on the <span style={{ color: "var(--color-n-accent)" }}>Base network</span> only.
@@ -255,7 +256,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
               <p className="text-xs text-center" style={{ color: "var(--color-n-muted)" }}>
                 Already funded?{" "}
                 <button
-                  onClick={() => {/* force balance refresh by toggling — noop, balance auto-refreshes */}}
+                  onClick={() => {}}
                   style={{ color: "var(--color-n-accent)", textDecoration: "underline" }}
                 >
                   Refresh balance
