@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useVaultState, useVaults, useUserPosition } from "@yo-protocol/react";
+import { useVaultState, useVaults, useUserPosition, usePrices } from "@yo-protocol/react";
 import { useAccount } from "wagmi";
-import { formatAmount, formatTVL, formatPercent } from "@/lib/format";
+import { formatAmount, formatUSD, formatPercent } from "@/lib/format";
 import { DepositSheet } from "./DepositSheet";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
@@ -25,7 +25,10 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
   const isLoading = stateLoading || vaultsLoading;
   const hasError = !isLoading && (!!stateError || !!vaultsError);
 
-  const tvl = vaultState ? Number(vaultState.totalAssets) / 10 ** vault.decimals : 0;
+  const { prices } = usePrices();
+  const nativeAmount = vaultState ? Number(vaultState.totalAssets) / 10 ** vault.decimals : 0;
+  const price = prices?.[vault.coingeckoId] ?? 0;
+  const tvlUsd = nativeAmount * price;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vaultStats = vaultsList?.find((v: any) => v.id.toLowerCase() === vault.id.toLowerCase());
   const apy = vaultStats?.yield?.["7d"] ? parseFloat(vaultStats.yield["7d"]) : 0;
@@ -118,7 +121,7 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
               <div className="text-sm font-bold" style={{ color: "var(--color-n-muted)" }}>—</div>
             ) : (
               <div className="text-sm font-bold animate-fade-in" style={{ color: "var(--color-n-text)" }}>
-                {vaultStats?.tvl?.formatted ?? formatTVL(tvl)}
+                {tvlUsd > 0 ? formatUSD(tvlUsd) : "—"}
               </div>
             )}
           </div>
