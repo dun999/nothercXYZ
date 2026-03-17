@@ -8,7 +8,7 @@ import { usePrivy } from "@privy-io/react-auth";
 export function HamburgerMenu() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { logout } = usePrivy();
+  const { authenticated, login, logout } = usePrivy();
 
   const TABS = [
     { href: "/", label: "Earn" },
@@ -78,17 +78,32 @@ export function HamburgerMenu() {
             );
           })}
 
-          <button
-            onClick={() => { logout(); setOpen(false); }}
-            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm"
-            style={{ color: "var(--color-n-muted)" }}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-            </svg>
-            Sign out
-          </button>
+          {authenticated ? (
+            <button
+              onClick={() => { logout(); setOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-sm"
+              style={{ color: "var(--color-n-muted)" }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+              </svg>
+              Sign out
+            </button>
+          ) : (
+            <button
+              onClick={() => { login(); setOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold"
+              style={{ color: "var(--color-n-accent)" }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+              </svg>
+              Connect Wallet
+            </button>
+          )}
         </div>
       )}
     </div>

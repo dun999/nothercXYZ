@@ -7,6 +7,7 @@ import { formatAmount, formatUSD, formatPercent } from "@/lib/format";
 import { DepositSheet } from "./DepositSheet";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
+import { RiskDisclosureModal, hasAcceptedRisk } from "./RiskDisclosureModal";
 import type { VaultConfig } from "@/lib/constants";
 
 export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: number }) {
@@ -21,6 +22,15 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
 
   const [depositOpen, setDepositOpen] = useState(false);
   const [redeemOpen, setRedeemOpen] = useState(false);
+  const [disclosureOpen, setDisclosureOpen] = useState(false);
+
+  const handleDepositClick = () => {
+    if (hasAcceptedRisk()) {
+      setDepositOpen(true);
+    } else {
+      setDisclosureOpen(true);
+    }
+  };
 
   const isLoading = stateLoading || vaultsLoading;
   const hasError = !isLoading && (!!stateError || !!vaultsError);
@@ -144,7 +154,7 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
         {/* Actions */}
         <div className="flex gap-2">
           <button
-            onClick={() => setDepositOpen(true)}
+            onClick={handleDepositClick}
             className="flex-1 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
             style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
           >
@@ -166,6 +176,11 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
         </div>
       </div>
 
+      <RiskDisclosureModal
+        open={disclosureOpen}
+        onClose={() => setDisclosureOpen(false)}
+        onAccept={() => { setDisclosureOpen(false); setDepositOpen(true); }}
+      />
       <DepositSheet
         open={depositOpen}
         onClose={() => setDepositOpen(false)}

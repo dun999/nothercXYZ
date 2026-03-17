@@ -52,8 +52,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!authenticated) return <LoginGate />;
-
   return (
     <div className="min-h-screen" style={{ background: "var(--color-n-bg)" }}>
       <main className="max-w-md mx-auto min-h-screen">
