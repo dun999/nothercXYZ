@@ -1,13 +1,8 @@
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <circle cx="50" cy="50" r="50" fill="#F7931A"/>
-  <!-- Staff -->
-  <rect x="33" y="22" width="8" height="56" rx="3" fill="#000"/>
-  <!-- Upper bump -->
-  <path d="M41 23 C41 23 60 23 60 36 C60 49 41 49 41 49" stroke="#000" stroke-width="8" stroke-linecap="round" fill="none"/>
-  <!-- Lower bump (wider) -->
-  <path d="M41 49 C41 49 63 49 63 62 C63 76 41 76 41 76" stroke="#000" stroke-width="8" stroke-linecap="round" fill="none"/>
-  <!-- Top serif -->
-  <rect x="28" y="19" width="16" height="7" rx="3.5" fill="#000" transform="rotate(10 28 19)"/>
-  <!-- Bottom serif -->
-  <rect x="28" y="74" width="16" height="7" rx="3.5" fill="#000" transform="rotate(-10 28 74)"/>
+  <rect x="34" y="19" width="9" height="62" rx="3" fill="#111"/>
+  <path d="M43 21 C43 21 65 21 65 35 C65 50 43 50 43 50" stroke="#111" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M43 50 C43 50 68 50 68 65 C68 79 43 79 43 79" stroke="#111" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <rect x="28" y="16" width="19" height="7" rx="3.5" fill="#111" transform="rotate(13 28 16)"/>
+  <rect x="28" y="77" width="19" height="7" rx="3.5" fill="#111" transform="rotate(-13 28 77)"/>
 </svg>
