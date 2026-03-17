@@ -58,5 +58,10 @@ export function parseErrorMessage(error: Error | null): string {
     return "Network error, check your connection.";
   if (msg.includes("gas") || msg.includes("underpriced"))
     return "Gas estimation failed. Try again.";
-  return error.message?.slice(0, 100) ?? "Transaction failed.";
+  if (msg.includes("timed out") || msg.includes("timeout")) {
+    const hashMatch = error.message?.match(/0x[a-fA-F0-9]{64}/);
+    const shortHash = hashMatch ? `${hashMatch[0].slice(0, 10)}…${hashMatch[0].slice(-6)}` : "";
+    return `Transaction timed out${shortHash ? ` (${shortHash})` : ""}. Try again.`;
+  }
+  return error.message?.slice(0, 80) ?? "Transaction failed.";
 }

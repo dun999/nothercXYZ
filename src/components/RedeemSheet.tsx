@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useRedeem, usePreviewRedeem, useShareBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, parseErrorMessage } from "@/lib/format";
 import { VAULTS } from "@/lib/constants";
@@ -44,8 +44,13 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
     { enabled: parsedAmount > 0n && !insufficientShares }
   );
 
-  const { redeem, step, isLoading, isSuccess, hash, instant, assetsOrRequestId, error, reset } =
+  const { redeem, step, isLoading, isSuccess, hash, instant, assetsOrRequestId, error, reset, approveHash } =
     useRedeem({ vault: vaultId, onConfirmed: () => setAmount("") });
+
+  const { isSuccess: approveConfirmed } = useWaitForTransactionReceipt({
+    hash: approveHash as `0x${string}` | undefined,
+    query: { enabled: !!approveHash },
+  });
 
   useEffect(() => {
     if (!open) { setAmount(""); reset?.(); setDragOffset(0); }
@@ -66,7 +71,10 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   const txStep = (step as TxStep) ?? "idle";
   const isActive = txStep !== "idle" && txStep !== "success" && txStep !== "error";
 
-  const buttonDisabled = isLoading || parsedAmount === 0n || !!insufficientShares;
+  // Approval tx confirmed on-chain but hook still waiting (stuck) — allow manual retry
+  const approvalStuck = approveConfirmed && txStep === "approving";
+
+  const buttonDisabled = (isLoading && !approvalStuck) || parsedAmount === 0n || !!insufficientShares;
   const maxShares = shareBalance
     ? (Number(shareBalance) / 10 ** vault.decimals).toString()
     : "";
@@ -221,7 +229,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
                     style={{ background: "var(--color-n-accent)" }} />
                 </span>
                 <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
-                  {STEP_LABEL[txStep]}
+                  {approvalStuck ? "Approval confirmed — tap Withdraw to continue" : STEP_LABEL[txStep]}
                 </span>
               </div>
             )}
@@ -237,7 +245,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
                 cursor: buttonDisabled ? "not-allowed" : "pointer",
               }}
             >
-              {STEP_LABEL[txStep]}
+              {approvalStuck ? STEP_LABEL.idle : STEP_LABEL[txStep]}
             </button>
 
             {isSuccess && !instant && (

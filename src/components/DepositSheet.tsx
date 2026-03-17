@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
@@ -44,10 +44,15 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
     enabled: parsedAmount > 0n,
   });
 
-  const { deposit, step, isLoading, isSuccess, hash, error, reset } = useDeposit({
+  const { deposit, step, isLoading, isSuccess, hash, error, reset, approveHash } = useDeposit({
     vault: vaultId,
     slippageBps: 50,
     onConfirmed: () => setAmount(""),
+  });
+
+  const { isSuccess: approveConfirmed } = useWaitForTransactionReceipt({
+    hash: approveHash as `0x${string}` | undefined,
+    query: { enabled: !!approveHash },
   });
 
   const wrongChain = chainId !== BASE_CHAIN_ID;
@@ -75,13 +80,18 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const txStep = (step as TxStep) ?? "idle";
   const isActive = txStep !== "idle" && txStep !== "success" && txStep !== "error";
 
+  // Approval tx confirmed on-chain but hook still waiting (stuck) — allow manual retry
+  const approvalStuck = approveConfirmed && txStep === "approving";
+
   const buttonLabel = wrongChain
     ? "Switch to Base"
     : insufficientBalance
       ? `Insufficient ${vault.asset}`
-      : STEP_LABEL[txStep];
+      : approvalStuck
+        ? STEP_LABEL.idle
+        : STEP_LABEL[txStep];
 
-  const buttonDisabled = isLoading || parsedAmount === 0n || (!!insufficientBalance && !wrongChain);
+  const buttonDisabled = (isLoading && !approvalStuck) || parsedAmount === 0n || (!!insufficientBalance && !wrongChain);
 
   if (!open) return null;
 
@@ -229,7 +239,9 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5"
                           style={{ background: "var(--color-n-accent)" }} />
                       </span>
-                      <span className="text-sm" style={{ color: "var(--color-n-text)" }}>{STEP_LABEL[txStep]}</span>
+                      <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
+                    {approvalStuck ? "Approval confirmed — tap Deposit to continue" : STEP_LABEL[txStep]}
+                  </span>
                     </div>
                   )}
 
