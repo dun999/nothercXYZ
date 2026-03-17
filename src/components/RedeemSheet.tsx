@@ -52,6 +52,15 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
     query: { enabled: !!approveHash },
   });
 
+  // Fallback: if approval hash is set but wagmi hasn't confirmed after 30s,
+  // the RPC is likely slow — unlock the button so the user can retry.
+  const [approveTimedOut, setApproveTimedOut] = useState(false);
+  useEffect(() => {
+    if (!approveHash || step !== "approving") { setApproveTimedOut(false); return; }
+    const t = setTimeout(() => setApproveTimedOut(true), 30_000);
+    return () => clearTimeout(t);
+  }, [approveHash, step]);
+
   useEffect(() => {
     if (!open) { setAmount(""); reset?.(); setDragOffset(0); }
   }, [open, reset]);
@@ -72,7 +81,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   const isActive = txStep !== "idle" && txStep !== "success" && txStep !== "error";
 
   // Approval tx confirmed on-chain but hook still waiting (stuck) — allow manual retry
-  const approvalStuck = approveConfirmed && txStep === "approving";
+  const approvalStuck = (approveConfirmed || approveTimedOut) && txStep === "approving";
 
   const buttonDisabled = (isLoading && !approvalStuck) || parsedAmount === 0n || !!insufficientShares;
   const maxShares = shareBalance
