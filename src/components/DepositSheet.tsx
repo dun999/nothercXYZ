@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
 import { VAULTS, BASE_CHAIN_ID } from "@/lib/constants";
@@ -30,6 +31,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
   const { address, chainId } = useAccount();
+  const { login } = usePrivy();
   const { switchChain } = useSwitchChain();
 
   const { balance: tokenBal } = useTokenBalance(vault.assetAddress, address, {
@@ -132,114 +134,143 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                 </button>
               </div>
 
-              {/* Amount input */}
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>Amount</span>
-                  <button
-                    className="text-xs font-semibold"
-                    style={{ color: "var(--color-n-accent)" }}
-                    onClick={() => maxBal && setAmount(maxBal)}
+              {/* No wallet state */}
+              {!address && (
+                <div className="mb-4">
+                  <div
+                    className="rounded-2xl p-5 text-center"
+                    style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
                   >
-                    Balance: {tokenBal ? formatAmount(tokenBal.balance, vault.decimals, 2) : "—"} {vault.asset}
-                  </button>
+                    <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>
+                      Connect a wallet to deposit
+                    </p>
+                    <p className="text-xs mb-4" style={{ color: "var(--color-n-muted)" }}>
+                      Use MetaMask, Coinbase Wallet, or any EVM wallet.
+                    </p>
+                    <button
+                      onClick={() => { onClose(); login(); }}
+                      className="w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
+                      style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
+                    >
+                      Connect Wallet
+                    </button>
+                  </div>
                 </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    value={amount}
-                    onChange={(e) => {
-                      if (/^\d*\.?\d*$/.test(e.target.value)) {
-                        setAmount(e.target.value);
-                        if (isSuccess || error) reset?.();
-                      }
-                    }}
-                    className="w-full rounded-2xl px-4 py-4 text-2xl font-bold outline-none"
+              )}
+
+              {/* Deposit form — only when wallet is connected */}
+              {address && (
+                <>
+                  {/* Amount input */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>Amount</span>
+                      <button
+                        className="text-xs font-semibold"
+                        style={{ color: "var(--color-n-accent)" }}
+                        onClick={() => maxBal && setAmount(maxBal)}
+                      >
+                        Balance: {tokenBal ? formatAmount(tokenBal.balance, vault.decimals, 2) : "—"} {vault.asset}
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="0.00"
+                        value={amount}
+                        onChange={(e) => {
+                          if (/^\d*\.?\d*$/.test(e.target.value)) {
+                            setAmount(e.target.value);
+                            if (isSuccess || error) reset?.();
+                          }
+                        }}
+                        className="w-full rounded-2xl px-4 py-4 text-2xl font-bold outline-none"
+                        style={{
+                          background: "var(--color-n-card)",
+                          border: `1.5px solid ${insufficientBalance ? "#EF4444" : "var(--color-n-border)"}`,
+                          color: "var(--color-n-text)",
+                        }}
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold"
+                        style={{ color: "var(--color-n-muted)" }}>
+                        {vault.asset}
+                      </span>
+                    </div>
+                    {insufficientBalance && (
+                      <p className="text-red-400 text-xs mt-1.5">Insufficient {vault.asset} balance.</p>
+                    )}
+                  </div>
+
+                  {/* Preview */}
+                  {parsedAmount > 0n && !insufficientBalance && (
+                    <div className="rounded-2xl p-4 mb-4 space-y-2" style={{ background: "var(--color-n-card)" }}>
+                      <Row label="You will receive"
+                        value={previewLoading ? "Calculating…" : shares ? `~${formatAmount(shares, vault.decimals, 4)} ${vault.name}` : "—"} />
+                      <Row label="Current APY" value={apy > 0 ? `${apy.toFixed(2)}%` : "—"} accent />
+                      {yearlyEarnings && <Row label="Est. yearly earnings" value={`~${yearlyEarnings}`} accent />}
+                      <Row label="Slippage" value="0.5%" />
+                      <Row label="Network" value={
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live" />
+                          Base
+                        </span>
+                      } />
+                    </div>
+                  )}
+
+                  {/* Active tx status */}
+                  {isActive && (
+                    <div className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
+                      style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}>
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                          style={{ background: "var(--color-n-accent)" }} />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5"
+                          style={{ background: "var(--color-n-accent)" }} />
+                      </span>
+                      <span className="text-sm" style={{ color: "var(--color-n-text)" }}>{STEP_LABEL[txStep]}</span>
+                    </div>
+                  )}
+
+                  {/* CTA */}
+                  <button
+                    onClick={handleDeposit}
+                    disabled={buttonDisabled}
+                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
                     style={{
-                      background: "var(--color-n-card)",
-                      border: `1.5px solid ${insufficientBalance ? "#EF4444" : "var(--color-n-border)"}`,
-                      color: "var(--color-n-text)",
+                      background: isSuccess ? "#22C55E" : wrongChain ? "#3B82F6" : "var(--color-n-accent)",
+                      color: (isSuccess || wrongChain) ? "#fff" : "var(--color-n-on-accent)",
+                      cursor: buttonDisabled ? "not-allowed" : "pointer",
                     }}
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold"
-                    style={{ color: "var(--color-n-muted)" }}>
-                    {vault.asset}
-                  </span>
-                </div>
-                {insufficientBalance && (
-                  <p className="text-red-400 text-xs mt-1.5">Insufficient {vault.asset} balance.</p>
-                )}
-              </div>
+                  >
+                    {buttonLabel}
+                  </button>
 
-              {/* Preview */}
-              {parsedAmount > 0n && !insufficientBalance && (
-                <div className="rounded-2xl p-4 mb-4 space-y-2" style={{ background: "var(--color-n-card)" }}>
-                  <Row label="You will receive"
-                    value={previewLoading ? "Calculating…" : shares ? `~${formatAmount(shares, vault.decimals, 4)} ${vault.name}` : "—"} />
-                  <Row label="Current APY" value={apy > 0 ? `${apy.toFixed(2)}%` : "—"} accent />
-                  {yearlyEarnings && <Row label="Est. yearly earnings" value={`~${yearlyEarnings}`} accent />}
-                  <Row label="Slippage" value="0.5%" />
-                  <Row label="Network" value={
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live" />
-                      Base
-                    </span>
-                  } />
-                </div>
+                  {error && (
+                    <div className="mt-3 rounded-xl px-4 py-3"
+                      style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                      <p className="text-red-400 text-sm">{parseErrorMessage(error)}</p>
+                      <button onClick={() => reset?.()} className="text-xs text-red-400/70 underline mt-1">Try again</button>
+                    </div>
+                  )}
+
+                  {isSuccess && hash && (
+                    <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
+                      style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
+                      <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
+                      <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer"
+                        className="text-sm font-semibold" style={{ color: "var(--color-n-accent)" }}>
+                        View tx
+                      </a>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-center mt-4" style={{ color: "var(--color-n-muted)" }}>
+                    Non-custodial · ERC-4626 on Base
+                  </p>
+                </>
               )}
-
-              {/* Active tx status */}
-              {isActive && (
-                <div className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
-                  style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}>
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                      style={{ background: "var(--color-n-accent)" }} />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5"
-                      style={{ background: "var(--color-n-accent)" }} />
-                  </span>
-                  <span className="text-sm" style={{ color: "var(--color-n-text)" }}>{STEP_LABEL[txStep]}</span>
-                </div>
-              )}
-
-              {/* CTA */}
-              <button
-                onClick={handleDeposit}
-                disabled={buttonDisabled}
-                className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
-                style={{
-                  background: isSuccess ? "#22C55E" : wrongChain ? "#3B82F6" : "var(--color-n-accent)",
-                  color: (isSuccess || wrongChain) ? "#fff" : "var(--color-n-on-accent)",
-                  cursor: buttonDisabled ? "not-allowed" : "pointer",
-                }}
-              >
-                {buttonLabel}
-              </button>
-
-              {error && (
-                <div className="mt-3 rounded-xl px-4 py-3"
-                  style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                  <p className="text-red-400 text-sm">{parseErrorMessage(error)}</p>
-                  <button onClick={() => reset?.()} className="text-xs text-red-400/70 underline mt-1">Try again</button>
-                </div>
-              )}
-
-              {isSuccess && hash && (
-                <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
-                  style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
-                  <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
-                  <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer"
-                    className="text-sm font-semibold" style={{ color: "var(--color-n-accent)" }}>
-                    View tx
-                  </a>
-                </div>
-              )}
-
-              <p className="text-xs text-center mt-4" style={{ color: "var(--color-n-muted)" }}>
-                Non-custodial · ERC-4626 on Base
-              </p>
 
             </div>
           </div>
