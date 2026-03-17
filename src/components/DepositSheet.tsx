@@ -55,6 +55,13 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
     query: { enabled: !!approveHash },
   });
 
+  const [approveTimedOut, setApproveTimedOut] = useState(false);
+  useEffect(() => {
+    if (!approveHash || step !== "approving") { setApproveTimedOut(false); return; }
+    const t = setTimeout(() => setApproveTimedOut(true), 30_000);
+    return () => clearTimeout(t);
+  }, [approveHash, step]);
+
   const wrongChain = chainId !== BASE_CHAIN_ID;
   const balanceLoaded = tokenBal !== undefined;
   const insufficientBalance = parsedAmount > 0n && balanceLoaded && parsedAmount > tokenBal!.balance;
@@ -81,7 +88,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const isActive = txStep !== "idle" && txStep !== "success" && txStep !== "error";
 
   // Approval tx confirmed on-chain but hook still waiting (stuck) — allow manual retry
-  const approvalStuck = approveConfirmed && txStep === "approving";
+  const approvalStuck = (approveConfirmed || approveTimedOut) && txStep === "approving";
 
   const buttonLabel = wrongChain
     ? "Switch to Base"
