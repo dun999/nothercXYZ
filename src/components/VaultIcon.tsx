@@ -1,9 +1,9 @@
 export function VaultIcon({ id, size = 44 }: { id: string; size?: number }) {
   const map: Record<string, string> = {
-    yoBTC: "/icons/btc.svg",
-    yoETH: "/icons/eth.svg",
-    yoUSD: "/icons/usdc.svg",
-    yoEUR: "/icons/eur.svg",
+    yoBTC: "/icons/btc.png",
+    yoETH: "/icons/eth.png",
+    yoUSD: "/icons/usdc.png",
+    yoEUR: "/icons/eur.png",
   };
   const src = map[id] ?? "/icons/usdc.svg";
 
