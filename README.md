@@ -10,7 +10,7 @@ On-chain savings app built on [YO Protocol](https://yo.xyz). Deposit USDC, ETH, 
 
 | | |
 |---|---|
-| Auth | Privy — email OTP + wallet login |
+| Auth | Privy — wallet login |
 | Chain | Base (8453) |
 | Yield | `@yo-protocol/react` |
 | UI | Next.js 15 · Tailwind v4 |
@@ -21,7 +21,7 @@ On-chain savings app built on [YO Protocol](https://yo.xyz). Deposit USDC, ETH, 
 
 Provider order: `PrivyProvider → QueryClientProvider → WagmiProvider → YieldProvider`
 
-Privy's `@privy-io/wagmi` is used as the wagmi adapter so embedded wallets (email login) are exposed as standard `useAccount()` addresses — no special handling needed for YO hooks.
+Privy's `@privy-io/wagmi` is used as the wagmi adapter — wallet addresses are exposed as standard `useAccount()`, no special handling needed for YO hooks.
 
 **Deposit** (`src/components/DepositSheet.tsx`)
 - `useTokenBalance` — live balance check, powers the MAX button
