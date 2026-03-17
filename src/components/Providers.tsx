@@ -49,7 +49,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
               "binance",
               "safe",
               "base_account",
-              "wallet_connect_qr",
             ],
             walletChainType: "ethereum-only",
           },
