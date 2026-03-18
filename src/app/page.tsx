@@ -42,16 +42,14 @@ function BestApy() {
 export default function HomePage() {
   const { address } = useAccount();
 
-  const displayName = address ? shortenAddress(address) : "there";
-
   return (
     <div className="px-4 pt-safe pb-safe">
       <div className="flex items-center justify-between py-4">
         <div className="flex items-center gap-2.5">
           <img src="/logo.svg" alt="Notherc" width={32} height={32} style={{ borderRadius: 10 }} />
           <div>
-            <span className="text-xs" style={{ color: "var(--color-n-muted)" }}>
-              Hey, {displayName}
+            <span className="text-xs font-mono" style={{ color: "var(--color-n-muted)" }}>
+              {address ? shortenAddress(address) : "Earn, automatically"}
             </span>
             <div className="text-sm font-bold" style={{ color: "var(--color-n-text)" }}>
               Notherc
@@ -75,7 +73,7 @@ export default function HomePage() {
         </p>
         <BestApy />
         <div className="flex flex-wrap gap-2 mt-3">
-          {["Non-custodial", "APY variable", "ERC-4626 on Base"].map((tag) => (
+          {["Non-custodial", "Variable APY", "On Base network"].map((tag) => (
             <span
               key={tag}
               className="text-[10px] px-2.5 py-1 rounded-full"

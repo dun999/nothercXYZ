@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
@@ -260,18 +261,32 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                   )}
 
                   {isSuccess && hash && (
-                    <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
-                      style={{ background: COLOR_SUCCESS_BG, border: `1px solid ${COLOR_SUCCESS_BORDER}` }}>
-                      <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
-                      <a href={basescanTx(hash)} target="_blank" rel="noopener noreferrer"
-                        className="text-sm font-semibold" style={{ color: "var(--color-n-accent)" }}>
-                        View tx
-                      </a>
-                    </div>
+                    <>
+                      <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
+                        style={{ background: COLOR_SUCCESS_BG, border: `1px solid ${COLOR_SUCCESS_BORDER}` }}>
+                        <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
+                        <a href={basescanTx(hash)} target="_blank" rel="noopener noreferrer"
+                          className="text-sm font-semibold" style={{ color: "var(--color-n-accent)" }}>
+                          View tx
+                        </a>
+                      </div>
+                      <Link
+                        href="/portfolio"
+                        onClick={onClose}
+                        className="w-full mt-2 py-3 rounded-xl font-bold text-sm text-center block transition-all active:scale-[0.98]"
+                        style={{
+                          background: "var(--color-n-card)",
+                          border: "1px solid var(--color-n-border)",
+                          color: "var(--color-n-text)",
+                        }}
+                      >
+                        View Portfolio →
+                      </Link>
+                    </>
                   )}
 
                   <p className="text-xs text-center mt-4" style={{ color: "var(--color-n-muted)" }}>
-                    Non-custodial · ERC-4626 on Base
+                    Non-custodial · Withdraw any time
                   </p>
                 </>
               )}

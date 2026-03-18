@@ -3,17 +3,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAccount } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
-import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
+import { useUserPosition, useVaultState, useVaults, usePrices } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
 import { basescanAddress } from "@/lib/config";
-import { formatAmount, formatPercent, shortenAddress } from "@/lib/format";
+import { formatAmount, formatUSD, formatPercent, shortenAddress } from "@/lib/format";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
 import Link from "next/link";
 import { useInView } from "@/hooks/useInView";
 import type { VaultId } from "@/lib/constants";
 
-function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (vaultId: string, hasPosition: boolean) => void }) {
+function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (vaultId: string, hasPosition: boolean, usdValue: number) => void }) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [cardRef, inView] = useInView();
@@ -23,12 +23,15 @@ function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; addres
   });
   const { vaultState } = useVaultState(vaultId);
   const { vaults: vaultsList } = useVaults();
+  const { prices } = usePrices();
+  const earlyAssetValue = position ? Number(position.assets) / 10 ** vault.decimals : 0;
+  const positionUsd = earlyAssetValue * (prices?.[vault.coingeckoId] ?? 0);
 
   useEffect(() => {
     if (!posLoading) {
-      onLoaded(vaultId, (position?.shares ?? 0n) > 0n);
+      onLoaded(vaultId, (position?.shares ?? 0n) > 0n, positionUsd);
     }
-  }, [posLoading, position, onLoaded, vaultId]);
+  }, [posLoading, position, onLoaded, vaultId, positionUsd]);
 
   if (posLoading) {
     return (
@@ -82,6 +85,11 @@ function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; addres
             <div className="text-xl font-black" style={{ color: "var(--color-n-text)" }}>
               {formatAmount(assets, vault.decimals, 4)} {vault.asset}
             </div>
+            {positionUsd > 0 && (
+              <div className="text-xs font-semibold" style={{ color: "var(--color-n-muted)" }}>
+                ≈ {formatUSD(positionUsd)}
+              </div>
+            )}
             <div className="text-xs" style={{ color: "var(--color-n-accent)" }}>
               {formatPercent(apy)} APY
             </div>
@@ -164,14 +172,14 @@ function StatCell({
 export function Portfolio() {
   const { address } = useAccount();
   const { login } = usePrivy();
-  const [vaultStatus, setVaultStatus] = useState<Record<string, boolean>>({});
+  const [vaultStatus, setVaultStatus] = useState<Record<string, { hasPosition: boolean; usdValue: number }>>({});
 
   useEffect(() => {
     setVaultStatus({});
   }, [address]);
 
-  const handleLoaded = useCallback((vaultId: string, hasPosition: boolean) => {
-    setVaultStatus((prev) => ({ ...prev, [vaultId]: hasPosition }));
+  const handleLoaded = useCallback((vaultId: string, hasPosition: boolean, usdValue: number) => {
+    setVaultStatus((prev) => ({ ...prev, [vaultId]: { hasPosition, usdValue } }));
   }, []);
 
   if (!address) {
@@ -204,7 +212,8 @@ export function Portfolio() {
   }
 
   const loadedCount = Object.keys(vaultStatus).length;
-  const positionCount = Object.values(vaultStatus).filter(Boolean).length;
+  const positionCount = Object.values(vaultStatus).filter((v) => v.hasPosition).length;
+  const totalUsd = Object.values(vaultStatus).reduce((sum, v) => sum + v.usdValue, 0);
   const allLoaded = loadedCount >= VAULTS.length;
   const isEmpty = allLoaded && positionCount === 0;
 
@@ -214,16 +223,21 @@ export function Portfolio() {
         className="rounded-xl px-3 py-2 mb-4 flex items-center gap-2"
         style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
       >
-        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+        <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
         <span className="text-xs font-mono" style={{ color: "var(--color-n-muted)" }}>
           {shortenAddress(address)}
         </span>
+        {totalUsd > 0 && (
+          <span className="text-xs font-bold" style={{ color: "var(--color-n-accent)" }}>
+            {formatUSD(totalUsd)}
+          </span>
+        )}
         <a
           href={basescanAddress(address)}
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-auto text-xs"
-          style={{ color: "var(--color-n-accent)" }}
+          className="ml-auto text-xs shrink-0"
+          style={{ color: "var(--color-n-muted)" }}
         >
           BaseScan ↗
         </a>

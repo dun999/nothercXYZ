@@ -69,7 +69,7 @@ export function LoginGate() {
         </p>
 
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {["No lock-up", "Non-custodial", "ERC-4626 on Base"].map((f) => (
+          {["No lock-up", "Non-custodial", "Audited vaults"].map((f) => (
             <span
               key={f}
               className="text-xs px-3 py-1.5 rounded-full font-medium"
