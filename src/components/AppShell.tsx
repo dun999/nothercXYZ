@@ -27,8 +27,10 @@ function useNavDirection() {
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
-  const { ready, authenticated } = usePrivy();
+  const { ready } = usePrivy();
   const [timedOut, setTimedOut] = useState(false);
+  // Must call useNavDirection unconditionally — Rules of Hooks forbid calling after early return
+  const { pathname, dir } = useNavDirection();
 
   useEffect(() => {
     if (ready) return;
@@ -71,8 +73,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-
-  const { pathname, dir } = useNavDirection();
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-n-bg)" }}>
