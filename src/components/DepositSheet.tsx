@@ -70,11 +70,15 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
     if (!open) { setAmount(""); reset?.(); }
   }, [open, reset]);
 
+  useEffect(() => {
+    if (!address && open) onClose();
+  }, [address, open, onClose]);
+
   const handleDeposit = useCallback(async () => {
-    if (!parsedAmount || parsedAmount === 0n || insufficientBalance) return;
+    if (!address || !parsedAmount || parsedAmount === 0n || insufficientBalance) return;
     if (wrongChain) { switchChain?.({ chainId: BASE_CHAIN_ID }); return; }
     await deposit({ token: vault.assetAddress, amount: parsedAmount, chainId: BASE_CHAIN_ID });
-  }, [deposit, parsedAmount, vault.assetAddress, insufficientBalance, wrongChain, switchChain]);
+  }, [address, deposit, parsedAmount, vault.assetAddress, insufficientBalance, wrongChain, switchChain]);
 
   const maxBal = tokenBal
     ? (Number(tokenBal.balance) / 10 ** vault.decimals).toString()
