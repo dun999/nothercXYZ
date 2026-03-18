@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
 import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
@@ -15,6 +15,8 @@ function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; addres
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [cardRef, inView] = useInView();
+  // Fire onLoaded exactly once per mount (prevents double-count on posLoading flicker)
+  const hasReported = useRef(false);
 
   const { position, isLoading: posLoading } = useUserPosition(vaultId, address as `0x${string}`, {
     enabled: !!address,
@@ -23,11 +25,11 @@ function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; addres
   const { vaults: vaultsList } = useVaults();
 
   useEffect(() => {
-    if (!posLoading) {
+    if (!posLoading && !hasReported.current) {
+      hasReported.current = true;
       onLoaded((position?.shares ?? 0n) > 0n);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [posLoading]);
+  }, [posLoading, position, onLoaded]);
 
   if (posLoading) {
     return (
@@ -224,7 +226,8 @@ export function Portfolio() {
       </div>
 
       {VAULTS.map((v) => (
-        <PositionCard key={v.id} vaultId={v.id} address={address} onLoaded={handleLoaded} />
+        // key includes address so cards remount on wallet switch, preventing stale callbacks
+        <PositionCard key={`${v.id}-${address}`} vaultId={v.id} address={address} onLoaded={handleLoaded} />
       ))}
 
       {isEmpty && (

@@ -17,10 +17,10 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
   const [hovered, setHovered] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vaultStateResult = useVaultState(vault.id) as any;
-  const { vaultState, isLoading: stateLoading, error: stateError } = vaultStateResult;
+  const { vaultState, isLoading: stateLoading, error: stateError, refetch: refetchState } = vaultStateResult;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vaultsResult = useVaults() as any;
-  const { vaults: vaultsList, isLoading: vaultsLoading, error: vaultsError } = vaultsResult;
+  const { vaults: vaultsList, isLoading: vaultsLoading, error: vaultsError, refetch: refetchVaults } = vaultsResult;
   const { position } = useUserPosition(vault.id, address!, { enabled: !!address });
 
   const [depositOpen, setDepositOpen] = useState(false);
@@ -116,7 +116,7 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
           >
             <span className="text-xs text-red-400">Failed to load vault data</span>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => { refetchState?.(); refetchVaults?.(); }}
               className="text-xs font-semibold px-2.5 py-1 rounded-lg"
               style={{ background: "rgba(239,68,68,0.12)", color: "#f87171" }}
             >
