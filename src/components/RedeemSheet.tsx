@@ -63,10 +63,14 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
     if (!open) { setAmount(""); reset?.(); }
   }, [open, reset]);
 
+  useEffect(() => {
+    if (!address && open) onClose();
+  }, [address, open, onClose]);
+
   const handleRedeem = useCallback(async () => {
-    if (!parsedAmount || parsedAmount === 0n || insufficientShares) return;
+    if (!address || !parsedAmount || parsedAmount === 0n || insufficientShares) return;
     await redeem(parsedAmount);
-  }, [redeem, parsedAmount, insufficientShares]);
+  }, [address, redeem, parsedAmount, insufficientShares]);
 
   const txStep = (step as TxStep) ?? "idle";
   const isActive = txStep !== "idle" && txStep !== "success" && txStep !== "error";
