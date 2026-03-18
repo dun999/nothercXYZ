@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useRedeem, usePreviewRedeem, useShareBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, parseErrorMessage } from "@/lib/format";
@@ -28,8 +28,6 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
   const { address } = useAccount();
-  const dragStartY = useRef(0);
-  const [dragOffset, setDragOffset] = useState(0);
 
   const { shares: shareBalance } = useShareBalance(vaultId, address as `0x${string}`, {
     enabled: !!address && open,
@@ -62,15 +60,8 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   }, [approveHash, step]);
 
   useEffect(() => {
-    if (!open) { setAmount(""); reset?.(); setDragOffset(0); }
+    if (!open) { setAmount(""); reset?.(); }
   }, [open, reset]);
-
-  const onTouchStart = (e: React.TouchEvent) => { dragStartY.current = e.touches[0].clientY; };
-  const onTouchMove = (e: React.TouchEvent) => {
-    const dy = e.touches[0].clientY - dragStartY.current;
-    if (dy > 0) setDragOffset(dy);
-  };
-  const onTouchEnd = () => { if (dragOffset > 120) onClose(); else setDragOffset(0); };
 
   const handleRedeem = useCallback(async () => {
     if (!parsedAmount || parsedAmount === 0n || insufficientShares) return;
@@ -88,39 +79,33 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
     ? (Number(shareBalance) / 10 ** vault.decimals).toString()
     : "";
 
+  if (!open) return null;
+
   return (
     <>
+      {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-50 sheet-backdrop transition-all duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-        style={{ background: "rgba(0,0,0,0.65)" }}
+        className="fixed inset-0 z-50 sheet-backdrop animate-fade-in"
+        style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
         onClick={onClose}
       />
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl sheet-slide"
-        style={{
-          background: "var(--color-n-surface)",
-          borderTop: "1px solid var(--color-n-border)",
-          transform: open ? `translateY(${dragOffset}px)` : "translateY(100%)",
-          minHeight: "62dvh",
-          maxHeight: "92dvh",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
+      {/* Centered modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-5 pointer-events-none">
         <div
-          className="flex justify-center pt-3 pb-2 shrink-0"
-          style={{ touchAction: "none", cursor: "grab" }}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
+          className="w-full max-w-sm rounded-3xl pointer-events-auto animate-modal"
+          style={{
+            background: "var(--color-n-surface)",
+            border: "1px solid var(--color-n-border)",
+            maxHeight: "88dvh",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
+          }}
         >
-          <div className="w-10 h-1 rounded-full" style={{ background: "var(--color-n-border)" }} />
-        </div>
-
-        <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", flex: "1 1 auto", minHeight: 0, touchAction: "pan-y" }}>
-          <div className="px-5 pt-1" style={{ paddingBottom: "calc(24px + env(safe-area-inset-bottom, 0px))" }}>
+        <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
+          <div className="px-5 py-5">
 
             <div className="flex items-center justify-between mb-5">
               <div>
@@ -297,6 +282,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
               No lock-up · Funds return to your wallet on Base
             </p>
           </div>
+        </div>
         </div>
       </div>
     </>
