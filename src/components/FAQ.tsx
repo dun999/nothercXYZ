@@ -181,64 +181,135 @@ const ITEMS: FAQItem[] = [
   },
 ];
 
+const DEPOSIT_STEPS = [
+  {
+    step: "1",
+    title: "Connect your wallet",
+    body: "Tap Connect Wallet and sign in with MetaMask, Coinbase Wallet, or any EVM-compatible wallet. No account or KYC required",
+  },
+  {
+    step: "2",
+    title: "Choose a vault",
+    body: "Pick a vault based on your goal. yoUSD for stable yield, yoETH or yoBTC for crypto exposure with yield, yoEUR for euro-denominated savings",
+  },
+  {
+    step: "3",
+    title: "Enter an amount",
+    body: "Type how much you want to deposit. A preview shows the shares you will receive, your estimated yearly earnings, and the current APY",
+  },
+  {
+    step: "4",
+    title: "Approve the token",
+    body: "On your first deposit to a vault, you will be asked to approve the token. This is a one-time wallet signature that allows the vault contract to receive your funds",
+  },
+  {
+    step: "5",
+    title: "Confirm the deposit",
+    body: "Sign the deposit transaction in your wallet. Once confirmed on Base, your vault shares appear in your Portfolio",
+  },
+];
+
 export function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <div>
-      <h2 className="text-lg font-bold mb-4" style={{ color: "var(--color-n-text)" }}>
-        Frequently Asked Questions
-      </h2>
-      <div className="space-y-2">
-        {ITEMS.map((item, i) => {
-          const isOpen = open === i;
-          return (
+    <div className="space-y-8 pb-6">
+      <div>
+        <h2 className="text-lg font-bold mb-4" style={{ color: "var(--color-n-text)" }}>
+          Frequently Asked Questions
+        </h2>
+        <div className="space-y-2">
+          {ITEMS.map((item, i) => {
+            const isOpen = open === i;
+            return (
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden transition-all"
+                style={{
+                  background: "var(--color-n-surface)",
+                  border: `1px solid ${isOpen ? "var(--color-n-accent)" : "var(--color-n-border)"}`,
+                }}
+              >
+                <button
+                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  onClick={() => setOpen(isOpen ? null : i)}
+                >
+                  <span className="text-sm font-semibold pr-4" style={{ color: "var(--color-n-text)" }}>
+                    {item.q}
+                  </span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-n-muted)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{
+                      flexShrink: 0,
+                      transition: "transform 0.2s ease",
+                      transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    }}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+                {isOpen && (
+                  <div className="px-5 pb-5">
+                    <div
+                      className="pt-3"
+                      style={{ borderTop: "1px solid var(--color-n-border)" }}
+                    >
+                      {item.a}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-bold mb-4" style={{ color: "var(--color-n-text)" }}>
+          How to Deposit
+        </h2>
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{
+            background: "var(--color-n-surface)",
+            border: "1px solid var(--color-n-border)",
+          }}
+        >
+          {DEPOSIT_STEPS.map(({ step, title, body }, i) => (
             <div
-              key={i}
-              className="rounded-2xl overflow-hidden transition-all"
+              key={step}
+              className="flex gap-4 px-5 py-4"
               style={{
-                background: "var(--color-n-surface)",
-                border: `1px solid ${isOpen ? "var(--color-n-accent)" : "var(--color-n-border)"}`,
+                borderBottom: i < DEPOSIT_STEPS.length - 1 ? "1px solid var(--color-n-border)" : "none",
               }}
             >
-              <button
-                className="w-full flex items-center justify-between px-5 py-4 text-left"
-                onClick={() => setOpen(isOpen ? null : i)}
+              <div
+                className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
+                style={{
+                  background: "var(--color-n-accent-glow)",
+                  color: "var(--color-n-accent)",
+                }}
               >
-                <span className="text-sm font-semibold pr-4" style={{ color: "var(--color-n-text)" }}>
-                  {item.q}
-                </span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--color-n-muted)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{
-                    flexShrink: 0,
-                    transition: "transform 0.2s ease",
-                    transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                  }}
-                >
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </button>
-              {isOpen && (
-                <div className="px-5 pb-5">
-                  <div
-                    className="pt-3"
-                    style={{ borderTop: "1px solid var(--color-n-border)" }}
-                  >
-                    {item.a}
-                  </div>
-                </div>
-              )}
+                {step}
+              </div>
+              <div>
+                <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>
+                  {title}
+                </p>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--color-n-muted)" }}>
+                  {body}
+                </p>
+              </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );
