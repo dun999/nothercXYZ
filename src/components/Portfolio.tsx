@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAccount } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
 import { formatAmount, formatPercent, shortenAddress } from "@/lib/format";
@@ -161,6 +162,7 @@ function StatCell({
 
 export function Portfolio() {
   const { address } = useAccount();
+  const { login } = usePrivy();
   const [vaultStatus, setVaultStatus] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -188,8 +190,14 @@ export function Portfolio() {
             <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
           </svg>
         </div>
-        <p className="font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>No wallet connected</p>
-        <p className="text-sm" style={{ color: "var(--color-n-muted)" }}>Connect a wallet to see your positions.</p>
+        <p className="font-semibold mb-4" style={{ color: "var(--color-n-text)" }}>No wallet connected</p>
+        <button
+          onClick={() => login()}
+          className="px-5 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
+          style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
+        >
+          Connect Wallet
+        </button>
       </div>
     );
   }

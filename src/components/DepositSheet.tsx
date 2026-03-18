@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
-import { usePrivy } from "@privy-io/react-auth";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
 import { VAULTS, BASE_CHAIN_ID } from "@/lib/constants";
@@ -31,7 +30,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
   const { address, chainId } = useAccount();
-  const { login } = usePrivy();
   const { switchChain } = useSwitchChain();
 
   const { balance: tokenBal } = useTokenBalance(vault.assetAddress, address, {
@@ -155,31 +153,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                 </button>
               </div>
 
-              {/* No wallet state */}
-              {!address && (
-                <div className="mb-4">
-                  <div
-                    className="rounded-2xl p-5 text-center"
-                    style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
-                  >
-                    <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>
-                      Connect a wallet to deposit
-                    </p>
-                    <p className="text-xs mb-4" style={{ color: "var(--color-n-muted)" }}>
-                      Use MetaMask, Coinbase Wallet, or any EVM wallet
-                    </p>
-                    <button
-                      onClick={() => { onClose(); login(); }}
-                      className="w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
-                      style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
-                    >
-                      Connect Wallet
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Deposit form — only when wallet is connected */}
               {address && (
                 <>
                   {/* Amount input */}
