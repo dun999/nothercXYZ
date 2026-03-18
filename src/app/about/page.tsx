@@ -3,6 +3,7 @@
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { ThemeSlide } from "@/components/ThemeSlide";
 import { TWITTER_URL } from "@/lib/constants";
+import { APP_NAME, YO_PROTOCOL_URL } from "@/lib/config";
 
 export default function AboutPage() {
   return (
@@ -22,9 +23,9 @@ export default function AboutPage() {
         style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <img src="/logo.svg" alt="Notherc" width={44} height={44} className="shrink-0" style={{ borderRadius: 12 }} />
+          <img src="/logo.svg" alt={APP_NAME} width={44} height={44} className="shrink-0" style={{ borderRadius: 12 }} />
           <div>
-            <div className="font-bold" style={{ color: "var(--color-n-text)" }}>Notherc</div>
+            <div className="font-bold" style={{ color: "var(--color-n-text)" }}>{APP_NAME}</div>
             <div className="text-xs" style={{ color: "var(--color-n-muted)" }}>Mobile-first savings on Base</div>
           </div>
         </div>
@@ -49,7 +50,7 @@ export default function AboutPage() {
           <div>
             <p className="font-bold text-sm" style={{ color: "var(--color-n-text)" }}>Built on YO Protocol</p>
             <a
-              href="https://yo.xyz"
+              href={YO_PROTOCOL_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs"

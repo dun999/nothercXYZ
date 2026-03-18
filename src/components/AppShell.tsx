@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
+import { PRIVY_READY_TIMEOUT_MS } from "@/lib/config";
 
 const TABS_ORDER = ["/", "/portfolio", "/faq", "/about", "/advisor"];
 
@@ -33,7 +34,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (ready) return;
-    const id = setTimeout(() => setTimedOut(true), 5000);
+    const id = setTimeout(() => setTimedOut(true), PRIVY_READY_TIMEOUT_MS);
     return () => clearTimeout(id);
   }, [ready]);
 

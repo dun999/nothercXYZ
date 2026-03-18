@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BASESCAN_URL } from "@/lib/config";
 
 interface FAQItem {
   q: string;
@@ -20,7 +21,7 @@ const ITEMS: FAQItem[] = [
         <p>
           Every deposit and withdrawal is an on-chain transaction publicly verifiable on{" "}
           <a
-            href="https://basescan.org"
+            href={BASESCAN_URL}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "var(--color-n-accent)", textDecoration: "underline" }}

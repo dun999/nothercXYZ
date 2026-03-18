@@ -5,6 +5,15 @@ import { useAccount, useChainId, useSwitchChain, useWaitForTransactionReceipt } 
 import { useRedeem, usePreviewRedeem, useShareBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, parseErrorMessage } from "@/lib/format";
 import { VAULTS, BASE_CHAIN_ID } from "@/lib/constants";
+import {
+  APPROVAL_TIMEOUT_MS,
+  MODAL_BACKDROP, MODAL_SHADOW,
+  COLOR_SUCCESS, COLOR_ERROR,
+  COLOR_SUCCESS_BG, COLOR_SUCCESS_BORDER,
+  COLOR_ERROR_BG, COLOR_ERROR_BORDER,
+  COLOR_WARNING_BG, COLOR_WARNING_BORDER,
+  basescanTx,
+} from "@/lib/config";
 import type { VaultId } from "@/lib/constants";
 
 type TxStep = "idle" | "approving" | "redeeming" | "waiting" | "success" | "error";
@@ -58,7 +67,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   const [approveTimedOut, setApproveTimedOut] = useState(false);
   useEffect(() => {
     if (!approveHash || step !== "approving") { setApproveTimedOut(false); return; }
-    const t = setTimeout(() => setApproveTimedOut(true), 30_000);
+    const t = setTimeout(() => setApproveTimedOut(true), APPROVAL_TIMEOUT_MS);
     return () => clearTimeout(t);
   }, [approveHash, step]);
 
@@ -95,7 +104,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-50 sheet-backdrop animate-fade-in"
-        style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+        style={{ background: MODAL_BACKDROP, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
         onClick={onClose}
       />
 
@@ -110,7 +119,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
+            boxShadow: MODAL_SHADOW,
           }}
         >
         <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
@@ -166,7 +175,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
                   className="w-full rounded-2xl px-4 py-4 text-2xl font-bold outline-none transition-all"
                   style={{
                     background: "var(--color-n-card)",
-                    border: `1.5px solid ${insufficientShares ? "#EF4444" : "var(--color-n-border)"}`,
+                    border: `1.5px solid ${insufficientShares ? COLOR_ERROR : "var(--color-n-border)"}`,
                     color: "var(--color-n-text)",
                   }}
                 />
@@ -242,8 +251,8 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
               disabled={buttonDisabled}
               className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
               style={{
-                background: isSuccess ? "#22C55E" : "var(--color-n-card)",
-                border: `1px solid ${isSuccess ? "#22C55E" : "var(--color-n-border)"}`,
+                background: isSuccess ? COLOR_SUCCESS : "var(--color-n-card)",
+                border: `1px solid ${isSuccess ? COLOR_SUCCESS : "var(--color-n-border)"}`,
                 color: isSuccess ? "#000" : "var(--color-n-text)",
                 cursor: buttonDisabled ? "not-allowed" : "pointer",
               }}
@@ -253,7 +262,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
 
             {isSuccess && !instant && (
               <div className="mt-3 rounded-xl px-4 py-3"
-                style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}>
+                style={{ background: COLOR_WARNING_BG, border: `1px solid ${COLOR_WARNING_BORDER}` }}>
                 <p className="text-amber-400 text-sm font-medium">Withdrawal queued</p>
                 <p className="text-amber-400/70 text-xs mt-0.5">
                   Request #{assetsOrRequestId?.toString()} available within 24 hours
@@ -263,10 +272,10 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
 
             {isSuccess && instant && hash && (
               <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
-                style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
+                style={{ background: COLOR_SUCCESS_BG, border: `1px solid ${COLOR_SUCCESS_BORDER}` }}>
                 <span className="text-sm text-emerald-400 font-medium">Withdrawal complete</span>
                 <a
-                  href={`https://basescan.org/tx/${hash}`}
+                  href={basescanTx(hash)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-semibold"
@@ -279,7 +288,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
 
             {error && (
               <div className="mt-3 rounded-xl px-4 py-3"
-                style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                style={{ background: COLOR_ERROR_BG, border: `1px solid ${COLOR_ERROR_BORDER}` }}>
                 <p className="text-red-400 text-sm">{parseErrorMessage(error)}</p>
                 <button onClick={() => reset?.()} className="text-xs text-red-400/70 underline mt-1">
                   Try again

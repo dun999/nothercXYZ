@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
+import { basescanAddress } from "@/lib/config";
 import { formatAmount, formatPercent, shortenAddress } from "@/lib/format";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
@@ -116,7 +117,7 @@ function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; addres
 
         <div className="text-center mt-3">
           <a
-            href={`https://basescan.org/address/${VAULT_ADDRESSES[vaultId]}`}
+            href={basescanAddress(VAULT_ADDRESSES[vaultId])}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs"
@@ -218,7 +219,7 @@ export function Portfolio() {
           {shortenAddress(address)}
         </span>
         <a
-          href={`https://basescan.org/address/${address}`}
+          href={basescanAddress(address)}
           target="_blank"
           rel="noopener noreferrer"
           className="ml-auto text-xs"

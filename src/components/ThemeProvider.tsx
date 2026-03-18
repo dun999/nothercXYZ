@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { STORAGE_KEY_THEME } from "@/lib/config";
 
 type Theme = "dark" | "light";
 
@@ -16,14 +17,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Read stored preference on mount
   useEffect(() => {
-    const stored = localStorage.getItem("notherc-theme") as Theme | null;
+    const stored = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null;
     if (stored === "light" || stored === "dark") setTheme(stored);
   }, []);
 
   // Apply to <html data-theme="..."> and persist
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("notherc-theme", theme);
+    localStorage.setItem(STORAGE_KEY_THEME, theme);
   }, [theme]);
 
   return (
