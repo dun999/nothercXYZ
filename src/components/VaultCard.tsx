@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useVaultState, useVaults, useUserPosition, usePrices } from "@yo-protocol/react";
 import { useAccount } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import { formatAmount, formatUSD, formatPercent } from "@/lib/format";
 import { DepositSheet } from "./DepositSheet";
 import { RedeemSheet } from "./RedeemSheet";
@@ -13,6 +14,7 @@ import type { VaultConfig } from "@/lib/constants";
 
 export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: number }) {
   const { address } = useAccount();
+  const { login } = usePrivy();
   const [cardRef, inView] = useInView();
   const [hovered, setHovered] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,6 +30,7 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
   const [disclosureOpen, setDisclosureOpen] = useState(false);
 
   const handleDepositClick = () => {
+    if (!address) { login(); return; }
     if (hasAcceptedRisk()) {
       setDepositOpen(true);
     } else {
@@ -165,7 +168,7 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
             className="flex-1 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.97]"
             style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
           >
-            Deposit
+            {address ? "Deposit" : "Connect Wallet"}
           </button>
           {hasPosition && (
             <button
