@@ -91,7 +91,7 @@ export default function AboutPage() {
         style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
       >
         <p className="text-sm" style={{ color: "var(--color-n-muted)" }}>
-          Stay up to date with updates, new vaults, and announcements.
+          Stay up to date with updates, new vaults, and announcements
         </p>
         <a
           href={TWITTER_URL}

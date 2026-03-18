@@ -18,15 +18,15 @@ interface Props {
 const RISKS = [
   {
     title: "Smart contract risk",
-    body: "Funds are held in audited on-chain vaults. No custodian — but contracts carry inherent risk.",
+    body: "Funds are held in audited on-chain vaults. No custodian, but contracts carry inherent risk",
   },
   {
     title: "Variable yield",
-    body: "APY reflects recent performance and is not guaranteed. Rates change with market conditions.",
+    body: "APY reflects recent performance and is not guaranteed. Rates change with market conditions",
   },
   {
     title: "Withdrawal queue",
-    body: "Some vaults may take up to 24 hours to process redemptions rather than settling instantly.",
+    body: "Some vaults may take up to 24 hours to process redemptions rather than settling instantly",
   },
 ];
 
@@ -65,7 +65,7 @@ export function RiskDisclosureModal({ open, onAccept, onClose }: Props) {
                   Before you deposit
                 </h2>
                 <p className="text-sm mt-0.5" style={{ color: "var(--color-n-muted)" }}>
-                  A few things to be aware of.
+                  A few things to be aware of
                 </p>
               </div>
               <button
@@ -133,7 +133,7 @@ export function RiskDisclosureModal({ open, onAccept, onClose }: Props) {
                 </div>
               </div>
               <span className="text-sm" style={{ color: "var(--color-n-muted)" }}>
-                I understand these risks.
+                I understand these risks
               </span>
             </label>
 

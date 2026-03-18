@@ -11,9 +11,9 @@ type TxStep = "idle" | "approving" | "redeeming" | "waiting" | "success" | "erro
 
 const STEP_LABEL: Record<TxStep, string> = {
   idle: "Withdraw",
-  approving: "Approving…",
-  redeeming: "Redeeming shares…",
-  waiting: "Confirming on-chain…",
+  approving: "Approving",
+  redeeming: "Redeeming shares",
+  waiting: "Confirming on-chain",
   success: "Withdrawal confirmed",
   error: "Transaction failed",
 };
@@ -185,7 +185,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
               </div>
               {insufficientShares && (
                 <p className="text-red-400 text-xs mt-2">
-                  Not enough {vault.name} shares.
+                  Not enough {vault.name} shares
                 </p>
               )}
             </div>
@@ -199,7 +199,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
                   label="You will receive"
                   value={
                     previewLoading
-                      ? "Calculating…"
+                      ? "Calculating"
                       : previewAssets
                         ? `~${formatAmount(previewAssets, vault.decimals, 4)} ${vault.asset}`
                         : "—"
@@ -238,7 +238,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
                     style={{ background: "var(--color-n-accent)" }} />
                 </span>
                 <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
-                  {approvalStuck ? "Approval confirmed — tap Withdraw to continue" : STEP_LABEL[txStep]}
+                  {approvalStuck ? "Approval confirmed, tap Withdraw to continue" : STEP_LABEL[txStep]}
                 </span>
               </div>
             )}
@@ -294,7 +294,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
             )}
 
             <p className="text-xs text-center mt-4 mb-2" style={{ color: "var(--color-n-muted)" }}>
-              No lock-up. Funds return to your wallet on Base.
+              No lock-up · Funds return to your wallet on Base
             </p>
           </div>
         </div>
