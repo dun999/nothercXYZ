@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAccount } from "wagmi";
 import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
@@ -11,12 +11,10 @@ import Link from "next/link";
 import { useInView } from "@/hooks/useInView";
 import type { VaultId } from "@/lib/constants";
 
-function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (hasPosition: boolean) => void }) {
+function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (vaultId: string, hasPosition: boolean) => void }) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [cardRef, inView] = useInView();
-  // Fire onLoaded exactly once per mount (prevents double-count on posLoading flicker)
-  const hasReported = useRef(false);
 
   const { position, isLoading: posLoading } = useUserPosition(vaultId, address as `0x${string}`, {
     enabled: !!address,
@@ -25,11 +23,10 @@ function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; addres
   const { vaults: vaultsList } = useVaults();
 
   useEffect(() => {
-    if (!posLoading && !hasReported.current) {
-      hasReported.current = true;
-      onLoaded((position?.shares ?? 0n) > 0n);
+    if (!posLoading) {
+      onLoaded(vaultId, (position?.shares ?? 0n) > 0n);
     }
-  }, [posLoading, position, onLoaded]);
+  }, [posLoading, position, onLoaded, vaultId]);
 
   if (posLoading) {
     return (
@@ -164,18 +161,15 @@ function StatCell({
 
 export function Portfolio() {
   const { address } = useAccount();
-  const [loadedCount, setLoadedCount] = useState(0);
-  const [positionCount, setPositionCount] = useState(0);
+  const [vaultStatus, setVaultStatus] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    setLoadedCount(0);
-    setPositionCount(0);
+    setVaultStatus({});
   }, [address]);
 
-  const handleLoaded = (hasPosition: boolean) => {
-    setLoadedCount((c) => c + 1);
-    if (hasPosition) setPositionCount((c) => c + 1);
-  };
+  const handleLoaded = useCallback((vaultId: string, hasPosition: boolean) => {
+    setVaultStatus((prev) => ({ ...prev, [vaultId]: hasPosition }));
+  }, []);
 
   if (!address) {
     return (
@@ -200,6 +194,8 @@ export function Portfolio() {
     );
   }
 
+  const loadedCount = Object.keys(vaultStatus).length;
+  const positionCount = Object.values(vaultStatus).filter(Boolean).length;
   const allLoaded = loadedCount >= VAULTS.length;
   const isEmpty = allLoaded && positionCount === 0;
 
@@ -225,7 +221,7 @@ export function Portfolio() {
       </div>
 
       {VAULTS.map((v) => (
-        // key includes address so cards remount on wallet switch, preventing stale callbacks
+        // key includes address so cards remount on wallet switch, resetting reported state
         <PositionCard key={`${v.id}-${address}`} vaultId={v.id} address={address} onLoaded={handleLoaded} />
       ))}
 
