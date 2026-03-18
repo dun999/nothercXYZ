@@ -27,7 +27,7 @@ function useNavDirection() {
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
-  const { ready } = usePrivy();
+  const { ready, authenticated } = usePrivy();
   const [timedOut, setTimedOut] = useState(false);
   // Must call useNavDirection unconditionally — Rules of Hooks forbid calling after early return
   const { pathname, dir } = useNavDirection();
@@ -37,6 +37,11 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     const id = setTimeout(() => setTimedOut(true), 5000);
     return () => clearTimeout(id);
   }, [ready]);
+
+  // Privy ready but not authenticated → show login gate (handles logout redirect too)
+  if ((ready || timedOut) && !authenticated) {
+    return <LoginGate />;
+  }
 
   if (!ready && !timedOut) {
     return (
