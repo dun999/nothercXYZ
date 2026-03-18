@@ -49,6 +49,12 @@ export function BottomNav() {
             <Link
               key={href}
               href={href}
+              onClick={(e) => {
+                if (active) {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 min-h-[56px] relative"
             >
               {/* Active indicator bar */}

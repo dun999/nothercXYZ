@@ -1,8 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { LoginGate } from "./LoginGate";
+
+const TABS_ORDER = ["/", "/portfolio", "/faq", "/about", "/advisor"];
+
+function useNavDirection() {
+  const pathname = usePathname();
+  const prevRef = useRef(pathname);
+  const [dir, setDir] = useState<"left" | "right">("right");
+
+  useEffect(() => {
+    const prev = prevRef.current;
+    if (prev === pathname) return;
+    const prevIdx = TABS_ORDER.findIndex((t) => (t === "/" ? pathname === "/" : prev.startsWith(t)));
+    const currIdx = TABS_ORDER.findIndex((t) => (t === "/" ? pathname === "/" : pathname.startsWith(t)));
+    setDir(currIdx >= prevIdx ? "right" : "left");
+    prevRef.current = pathname;
+  }, [pathname]);
+
+  return { pathname, dir };
+}
 
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
 
@@ -52,10 +72,12 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const { pathname, dir } = useNavDirection();
+
   return (
     <div className="min-h-screen" style={{ background: "var(--color-n-bg)" }}>
       <main className="max-w-md mx-auto min-h-screen">
-        <div className="min-h-screen animate-page">
+        <div key={pathname} className={`min-h-screen animate-page-${dir}`}>
           {children}
         </div>
       </main>

@@ -8,11 +8,13 @@ import { formatAmount, formatPercent, shortenAddress } from "@/lib/format";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
 import Link from "next/link";
+import { useInView } from "@/hooks/useInView";
 import type { VaultId } from "@/lib/constants";
 
 function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (hasPosition: boolean) => void }) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
+  const [cardRef, inView] = useInView();
 
   const { position, isLoading: posLoading } = useUserPosition(vaultId, address as `0x${string}`, {
     enabled: !!address,
@@ -56,7 +58,8 @@ function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; addres
   return (
     <>
       <div
-        className="rounded-2xl p-5 mb-3"
+        ref={cardRef}
+        className={`rounded-2xl p-5 mb-3${inView ? " animate-slide-up" : " opacity-0"}`}
         style={{
           background: "var(--color-n-surface)",
           border: "1px solid var(--color-n-border)",
@@ -161,6 +164,7 @@ export function Portfolio() {
   const { address } = useAccount();
   const [loadedCount, setLoadedCount] = useState(0);
   const [positionCount, setPositionCount] = useState(0);
+  const [emptyRef, emptyInView] = useInView();
 
   useEffect(() => {
     setLoadedCount(0);
@@ -225,7 +229,8 @@ export function Portfolio() {
 
       {isEmpty && (
         <div
-          className="rounded-2xl p-8 text-center mt-2"
+          ref={emptyRef}
+          className={`rounded-2xl p-8 text-center mt-2${emptyInView ? " animate-slide-up" : " opacity-0"}`}
           style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
         >
           <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-n-accent)" }}>

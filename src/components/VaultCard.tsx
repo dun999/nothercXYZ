@@ -8,10 +8,13 @@ import { DepositSheet } from "./DepositSheet";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
 import { RiskDisclosureModal, hasAcceptedRisk } from "./RiskDisclosureModal";
+import { useInView } from "@/hooks/useInView";
 import type { VaultConfig } from "@/lib/constants";
 
 export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: number }) {
   const { address } = useAccount();
+  const [cardRef, inView] = useInView();
+  const [hovered, setHovered] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vaultStateResult = useVaultState(vault.id) as any;
   const { vaultState, isLoading: stateLoading, error: stateError } = vaultStateResult;
@@ -50,11 +53,15 @@ export function VaultCard({ vault, index = 0 }: { vault: VaultConfig; index?: nu
   return (
     <>
       <div
-        className="rounded-2xl p-5 mb-3 animate-slide-up"
+        ref={cardRef}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className={`rounded-2xl p-5 mb-3${inView ? " animate-slide-up" : " opacity-0"}`}
         style={{
           background: "var(--color-n-surface)",
-          border: "1px solid var(--color-n-border)",
-          animationDelay: `${index * 0.08}s`,
+          border: `1px solid ${hovered ? "var(--color-n-accent-dim)" : "var(--color-n-border)"}`,
+          transform: hovered ? "translateY(-1px)" : "translateY(0)",
+          transition: "transform 0.18s ease, border-color 0.18s ease",
         }}
       >
         {/* Header row */}
