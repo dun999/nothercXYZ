@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useChainId, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { useRedeem, usePreviewRedeem, useShareBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, parseErrorMessage } from "@/lib/format";
-import { VAULTS } from "@/lib/constants";
+import { VAULTS, BASE_CHAIN_ID } from "@/lib/constants";
 import type { VaultId } from "@/lib/constants";
 
 type TxStep = "idle" | "approving" | "redeeming" | "waiting" | "success" | "error";
@@ -28,6 +28,9 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
   const { address } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const wrongChain = chainId !== BASE_CHAIN_ID;
 
   const { shares: shareBalance } = useShareBalance(vaultId, address as `0x${string}`, {
     enabled: !!address && open,
@@ -69,8 +72,9 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
 
   const handleRedeem = useCallback(async () => {
     if (!address || !parsedAmount || parsedAmount === 0n || insufficientShares) return;
+    if (wrongChain) { switchChain?.({ chainId: BASE_CHAIN_ID }); return; }
     await redeem(parsedAmount);
-  }, [address, redeem, parsedAmount, insufficientShares]);
+  }, [address, redeem, parsedAmount, insufficientShares, wrongChain, switchChain]);
 
   const txStep = (step as TxStep) ?? "idle";
   const isActive = txStep !== "idle" && txStep !== "success" && txStep !== "error";
@@ -78,7 +82,8 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   // Approval tx confirmed on-chain but hook still waiting (stuck) — allow manual retry
   const approvalStuck = (approveConfirmed || approveTimedOut) && txStep === "approving";
 
-  const buttonDisabled = (isLoading && !approvalStuck) || parsedAmount === 0n || !!insufficientShares;
+  const buttonLabel = wrongChain ? "Switch to Base" : approvalStuck ? STEP_LABEL.idle : STEP_LABEL[txStep];
+  const buttonDisabled = !wrongChain && ((isLoading && !approvalStuck) || parsedAmount === 0n || !!insufficientShares);
   const maxShares = shareBalance
     ? (Number(shareBalance) / 10 ** vault.decimals).toString()
     : "";
@@ -243,7 +248,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
                 cursor: buttonDisabled ? "not-allowed" : "pointer",
               }}
             >
-              {approvalStuck ? STEP_LABEL.idle : STEP_LABEL[txStep]}
+              {buttonLabel}
             </button>
 
             {isSuccess && !instant && (
