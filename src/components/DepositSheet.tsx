@@ -107,7 +107,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-50 sheet-backdrop animate-fade-in"
-        style={{ background: "rgba(0,0,0,0.72)" }}
+        style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
         onClick={onClose}
       />
 
