@@ -12,10 +12,10 @@ type TxStep = "idle" | "switching-chain" | "approving" | "depositing" | "waiting
 
 const STEP_LABEL: Record<TxStep, string> = {
   idle: "Deposit",
-  "switching-chain": "Switching to Base…",
-  approving: "Approving token…",
-  depositing: "Depositing…",
-  waiting: "Confirming on-chain…",
+  "switching-chain": "Switching to Base",
+  approving: "Approving token",
+  depositing: "Depositing",
+  waiting: "Confirming on-chain",
   success: "Deposit confirmed",
   error: "Transaction failed",
 };
@@ -162,7 +162,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                       Connect a wallet to deposit
                     </p>
                     <p className="text-xs mb-4" style={{ color: "var(--color-n-muted)" }}>
-                      Use MetaMask, Coinbase Wallet, or any EVM wallet.
+                      Use MetaMask, Coinbase Wallet, or any EVM wallet
                     </p>
                     <button
                       onClick={() => { onClose(); login(); }}
@@ -215,7 +215,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                       </span>
                     </div>
                     {insufficientBalance && (
-                      <p className="text-red-400 text-xs mt-1.5">Insufficient {vault.asset} balance.</p>
+                      <p className="text-red-400 text-xs mt-1.5">Insufficient {vault.asset} balance</p>
                     )}
                   </div>
 
@@ -223,7 +223,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                   {parsedAmount > 0n && !insufficientBalance && (
                     <div className="rounded-2xl p-4 mb-4 space-y-2" style={{ background: "var(--color-n-card)" }}>
                       <Row label="You will receive"
-                        value={previewLoading ? "Calculating…" : shares ? `~${formatAmount(shares, vault.decimals, 4)} ${vault.name}` : "—"} />
+                        value={previewLoading ? "Calculating" : shares ? `~${formatAmount(shares, vault.decimals, 4)} ${vault.name}` : "—"} />
                       <Row label="Current APY" value={apy > 0 ? `${apy.toFixed(2)}%` : "—"} accent />
                       {yearlyEarnings && <Row label="Est. yearly earnings" value={`~${yearlyEarnings}`} accent />}
                       <Row label="Slippage" value="0.5%" />
@@ -247,7 +247,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                           style={{ background: "var(--color-n-accent)" }} />
                       </span>
                       <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
-                    {approvalStuck ? "Approval confirmed — tap Deposit to continue" : STEP_LABEL[txStep]}
+                    {approvalStuck ? "Approval confirmed, tap Deposit to continue" : STEP_LABEL[txStep]}
                   </span>
                     </div>
                   )}
