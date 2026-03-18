@@ -1,11 +1,19 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
-import { usePrivy } from "@privy-io/react-auth";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
 import { VAULTS, BASE_CHAIN_ID } from "@/lib/constants";
+import {
+  APPROVAL_TIMEOUT_MS, DEPOSIT_SLIPPAGE_BPS,
+  MODAL_BACKDROP, MODAL_SHADOW,
+  COLOR_SUCCESS, COLOR_ERROR, COLOR_CHAIN_SWITCH,
+  COLOR_SUCCESS_BG, COLOR_SUCCESS_BORDER,
+  COLOR_ERROR_BG, COLOR_ERROR_BORDER,
+  basescanTx,
+} from "@/lib/config";
 import type { VaultId } from "@/lib/constants";
 
 type TxStep = "idle" | "switching-chain" | "approving" | "depositing" | "waiting" | "success" | "error";
@@ -31,7 +39,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [amount, setAmount] = useState("");
   const { address, chainId } = useAccount();
-  const { login } = usePrivy();
   const { switchChain } = useSwitchChain();
 
   const { balance: tokenBal } = useTokenBalance(vault.assetAddress, address, {
@@ -46,7 +53,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
 
   const { deposit, step, isLoading, isSuccess, hash, error, reset, approveHash } = useDeposit({
     vault: vaultId,
-    slippageBps: 50,
+    slippageBps: DEPOSIT_SLIPPAGE_BPS,
     onConfirmed: () => setAmount(""),
   });
 
@@ -58,7 +65,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const [approveTimedOut, setApproveTimedOut] = useState(false);
   useEffect(() => {
     if (!approveHash || step !== "approving") { setApproveTimedOut(false); return; }
-    const t = setTimeout(() => setApproveTimedOut(true), 30_000);
+    const t = setTimeout(() => setApproveTimedOut(true), APPROVAL_TIMEOUT_MS);
     return () => clearTimeout(t);
   }, [approveHash, step]);
 
@@ -111,7 +118,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-50 sheet-backdrop animate-fade-in"
-        style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+        style={{ background: MODAL_BACKDROP, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
         onClick={onClose}
       />
 
@@ -126,7 +133,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
+            boxShadow: MODAL_SHADOW,
           }}
         >
           <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
@@ -155,31 +162,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                 </button>
               </div>
 
-              {/* No wallet state */}
-              {!address && (
-                <div className="mb-4">
-                  <div
-                    className="rounded-2xl p-5 text-center"
-                    style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
-                  >
-                    <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-n-text)" }}>
-                      Connect a wallet to deposit
-                    </p>
-                    <p className="text-xs mb-4" style={{ color: "var(--color-n-muted)" }}>
-                      Use MetaMask, Coinbase Wallet, or any EVM wallet
-                    </p>
-                    <button
-                      onClick={() => { onClose(); login(); }}
-                      className="w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
-                      style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
-                    >
-                      Connect Wallet
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Deposit form — only when wallet is connected */}
               {address && (
                 <>
                   {/* Amount input */}
@@ -209,7 +191,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                         className="w-full rounded-2xl px-4 py-4 text-2xl font-bold outline-none"
                         style={{
                           background: "var(--color-n-card)",
-                          border: `1.5px solid ${insufficientBalance ? "#EF4444" : "var(--color-n-border)"}`,
+                          border: `1.5px solid ${insufficientBalance ? COLOR_ERROR : "var(--color-n-border)"}`,
                           color: "var(--color-n-text)",
                         }}
                       />
@@ -262,7 +244,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                     disabled={buttonDisabled}
                     className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
                     style={{
-                      background: isSuccess ? "#22C55E" : wrongChain ? "#3B82F6" : "var(--color-n-accent)",
+                      background: isSuccess ? COLOR_SUCCESS : wrongChain ? COLOR_CHAIN_SWITCH : "var(--color-n-accent)",
                       color: (isSuccess || wrongChain) ? "#fff" : "var(--color-n-on-accent)",
                       cursor: buttonDisabled ? "not-allowed" : "pointer",
                     }}
@@ -272,25 +254,39 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
 
                   {error && (
                     <div className="mt-3 rounded-xl px-4 py-3"
-                      style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                      style={{ background: COLOR_ERROR_BG, border: `1px solid ${COLOR_ERROR_BORDER}` }}>
                       <p className="text-red-400 text-sm">{parseErrorMessage(error)}</p>
                       <button onClick={() => reset?.()} className="text-xs text-red-400/70 underline mt-1">Try again</button>
                     </div>
                   )}
 
                   {isSuccess && hash && (
-                    <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
-                      style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
-                      <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
-                      <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer"
-                        className="text-sm font-semibold" style={{ color: "var(--color-n-accent)" }}>
-                        View tx
-                      </a>
-                    </div>
+                    <>
+                      <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
+                        style={{ background: COLOR_SUCCESS_BG, border: `1px solid ${COLOR_SUCCESS_BORDER}` }}>
+                        <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
+                        <a href={basescanTx(hash)} target="_blank" rel="noopener noreferrer"
+                          className="text-sm font-semibold" style={{ color: "var(--color-n-accent)" }}>
+                          View tx
+                        </a>
+                      </div>
+                      <Link
+                        href="/portfolio"
+                        onClick={onClose}
+                        className="w-full mt-2 py-3 rounded-xl font-bold text-sm text-center block transition-all active:scale-[0.98]"
+                        style={{
+                          background: "var(--color-n-card)",
+                          border: "1px solid var(--color-n-border)",
+                          color: "var(--color-n-text)",
+                        }}
+                      >
+                        View Portfolio →
+                      </Link>
+                    </>
                   )}
 
                   <p className="text-xs text-center mt-4" style={{ color: "var(--color-n-muted)" }}>
-                    Non-custodial · ERC-4626 on Base
+                    Non-custodial · Withdraw any time
                   </p>
                 </>
               )}

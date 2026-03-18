@@ -7,6 +7,7 @@ import { YieldProvider } from "@yo-protocol/react";
 import { base } from "viem/chains";
 import { http } from "wagmi";
 import { ThemeProvider } from "./ThemeProvider";
+import { QUERY_STALE_TIME_MS, QUERY_RETRY_COUNT } from "@/lib/config";
 
 const wagmiConfig = createConfig({
   chains: [base],
@@ -17,7 +18,7 @@ const wagmiConfig = createConfig({
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: 30_000, retry: 2 },
+    queries: { staleTime: QUERY_STALE_TIME_MS, retry: QUERY_RETRY_COUNT },
   },
 });
 

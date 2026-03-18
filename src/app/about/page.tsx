@@ -3,6 +3,7 @@
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { ThemeSlide } from "@/components/ThemeSlide";
 import { TWITTER_URL } from "@/lib/constants";
+import { APP_NAME, YO_PROTOCOL_URL } from "@/lib/config";
 
 export default function AboutPage() {
   return (
@@ -22,9 +23,9 @@ export default function AboutPage() {
         style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <img src="/logo.svg" alt="Notherc" width={44} height={44} className="shrink-0" style={{ borderRadius: 12 }} />
+          <img src="/logo.svg" alt={APP_NAME} width={44} height={44} className="shrink-0" style={{ borderRadius: 12 }} />
           <div>
-            <div className="font-bold" style={{ color: "var(--color-n-text)" }}>Notherc</div>
+            <div className="font-bold" style={{ color: "var(--color-n-text)" }}>{APP_NAME}</div>
             <div className="text-xs" style={{ color: "var(--color-n-muted)" }}>Mobile-first savings on Base</div>
           </div>
         </div>
@@ -40,48 +41,32 @@ export default function AboutPage() {
         </p>
       </div>
 
-      {/* Built on YO Protocol */}
+      {/* Your money, your rules */}
       <div
         className="rounded-2xl p-5 mb-6"
         style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
       >
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="font-bold text-sm" style={{ color: "var(--color-n-text)" }}>Built on YO Protocol</p>
-            <a
-              href="https://yo.xyz"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs"
-              style={{ color: "var(--color-n-accent)" }}
-            >
-              yo.xyz ↗
-            </a>
-          </div>
-        </div>
-
+        <p className="font-bold text-sm mb-4" style={{ color: "var(--color-n-text)" }}>Your money, your rules</p>
         <div
-          className="rounded-xl divide-y text-xs"
-          style={{
-            background: "var(--color-n-card)",
-            border: "1px solid var(--color-n-border)",
-            borderColor: "var(--color-n-border)",
-          }}
+          className="rounded-xl divide-y"
+          style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
         >
           {[
-            { label: "Deposit", hooks: "useDeposit · usePreviewDeposit · useTokenBalance" },
-            { label: "Withdraw", hooks: "useRedeem · usePreviewRedeem · useShareBalance" },
-            { label: "Vault data", hooks: "useVaultState · useUserPosition · useVaults" },
-          ].map(({ label, hooks }) => (
-            <div key={label} className="flex items-start justify-between gap-4 px-3.5 py-2.5">
-              <span className="font-semibold shrink-0" style={{ color: "var(--color-n-muted)" }}>{label}</span>
-              <span className="text-right font-mono leading-relaxed" style={{ color: "var(--color-n-text)", fontSize: 10 }}>{hooks}</span>
+            { title: "Non-custodial", body: "Your funds live in on-chain vaults. No company can freeze, move, or access your assets." },
+            { title: "Audited contracts", body: "Open-source vaults on Base, fully verifiable on BaseScan at any time." },
+            { title: "No lock-up", body: "Withdraw any time, no penalties, no fixed terms. Your money moves when you want." },
+          ].map(({ title, body }) => (
+            <div key={title} className="px-4 py-3.5">
+              <p className="text-xs font-semibold mb-0.5" style={{ color: "var(--color-n-text)" }}>{title}</p>
+              <p className="text-xs leading-relaxed" style={{ color: "var(--color-n-muted)" }}>{body}</p>
             </div>
           ))}
         </div>
-
         <p className="text-[10px] mt-3" style={{ color: "var(--color-n-muted)" }}>
-          ERC-4626 on Base · Chain ID 8453
+          Powered by{" "}
+          <a href={YO_PROTOCOL_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-n-accent)" }}>
+            YO Protocol ↗
+          </a>
         </p>
       </div>
 

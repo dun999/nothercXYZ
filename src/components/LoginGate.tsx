@@ -4,6 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useVaults } from "@yo-protocol/react";
 import { formatPercent } from "@/lib/format";
 import { TWITTER_URL } from "@/lib/constants";
+import { APP_NAME, APP_TAGLINE, TWITTER_HANDLE } from "@/lib/config";
 
 function BestApy() {
   const { vaults } = useVaults();
@@ -51,24 +52,24 @@ export function LoginGate() {
               background: "radial-gradient(circle, var(--color-n-accent-glow) 0%, transparent 70%)",
             }}
           />
-          <img src="/logo.svg" alt="Notherc" width={72} height={72} className="relative" style={{ borderRadius: 20 }} />
+          <img src="/logo.svg" alt={APP_NAME} width={72} height={72} className="relative" style={{ borderRadius: 20 }} />
         </div>
 
         <h1
           className="text-4xl font-black tracking-tight mb-2"
           style={{ color: "var(--color-n-text)", letterSpacing: "-0.03em" }}
         >
-          Notherc
+          {APP_NAME}
         </h1>
         <p className="text-base mb-2 text-center" style={{ color: "var(--color-n-muted)" }}>
-          Your on-chain savings account
+          {APP_TAGLINE}
         </p>
         <p className="text-sm mb-8 text-center font-semibold">
           <BestApy />
         </p>
 
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {["No lock-up", "Non-custodial", "ERC-4626 on Base"].map((f) => (
+          {["No lock-up", "Non-custodial", "Audited vaults"].map((f) => (
             <span
               key={f}
               className="text-xs px-3 py-1.5 rounded-full font-medium"
@@ -131,7 +132,7 @@ export function LoginGate() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622 5.905-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
-          @nothercxyz
+          {TWITTER_HANDLE}
         </a>
       </div>
     </div>

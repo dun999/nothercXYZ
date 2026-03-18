@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-
-const STORAGE_KEY = "notherc_risk_accepted";
+import { STORAGE_KEY_RISK_ACCEPTED, MODAL_BACKDROP, MODAL_SHADOW } from "@/lib/config";
 
 export function hasAcceptedRisk(): boolean {
   if (typeof window === "undefined") return false;
-  return localStorage.getItem(STORAGE_KEY) === "1";
+  return localStorage.getItem(STORAGE_KEY_RISK_ACCEPTED) === "1";
 }
 
 interface Props {
@@ -36,7 +35,7 @@ export function RiskDisclosureModal({ open, onAccept, onClose }: Props) {
   if (!open) return null;
 
   const handleAccept = () => {
-    localStorage.setItem(STORAGE_KEY, "1");
+    localStorage.setItem(STORAGE_KEY_RISK_ACCEPTED, "1");
     onAccept();
   };
 
@@ -44,7 +43,7 @@ export function RiskDisclosureModal({ open, onAccept, onClose }: Props) {
     <>
       <div
         className="fixed inset-0 z-50 sheet-backdrop animate-fade-in"
-        style={{ background: "rgba(0,0,0,0.72)" }}
+        style={{ background: MODAL_BACKDROP }}
         onClick={onClose}
       />
 
@@ -54,7 +53,7 @@ export function RiskDisclosureModal({ open, onAccept, onClose }: Props) {
           style={{
             background: "var(--color-n-surface)",
             border: "1px solid var(--color-n-border)",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
+            boxShadow: MODAL_SHADOW,
           }}
         >
           <div className="p-6">
