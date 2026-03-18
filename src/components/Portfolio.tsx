@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { useUserPosition, useVaultState, useVaults } from "@yo-protocol/react";
 import { VAULTS, VAULT_ADDRESSES } from "@/lib/constants";
 import { formatAmount, formatPercent, shortenAddress } from "@/lib/format";
 import { RedeemSheet } from "./RedeemSheet";
 import { VaultIcon } from "./VaultIcon";
+import Link from "next/link";
 import type { VaultId } from "@/lib/constants";
 
-function PositionCard({ vaultId, address }: { vaultId: VaultId; address: string }) {
+function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (hasPosition: boolean) => void }) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
 
@@ -18,6 +19,13 @@ function PositionCard({ vaultId, address }: { vaultId: VaultId; address: string 
   });
   const { vaultState } = useVaultState(vaultId);
   const { vaults: vaultsList } = useVaults();
+
+  useEffect(() => {
+    if (!posLoading) {
+      onLoaded((position?.shares ?? 0n) > 0n);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posLoading]);
 
   if (posLoading) {
     return (
@@ -151,6 +159,18 @@ function StatCell({
 
 export function Portfolio() {
   const { address } = useAccount();
+  const [loadedCount, setLoadedCount] = useState(0);
+  const [positionCount, setPositionCount] = useState(0);
+
+  useEffect(() => {
+    setLoadedCount(0);
+    setPositionCount(0);
+  }, [address]);
+
+  const handleLoaded = (hasPosition: boolean) => {
+    setLoadedCount((c) => c + 1);
+    if (hasPosition) setPositionCount((c) => c + 1);
+  };
 
   if (!address) {
     return (
@@ -175,6 +195,9 @@ export function Portfolio() {
     );
   }
 
+  const allLoaded = loadedCount >= VAULTS.length;
+  const isEmpty = allLoaded && positionCount === 0;
+
   return (
     <div>
       <div
@@ -195,9 +218,34 @@ export function Portfolio() {
           BaseScan ↗
         </a>
       </div>
+
       {VAULTS.map((v) => (
-        <PositionCard key={v.id} vaultId={v.id} address={address} />
+        <PositionCard key={v.id} vaultId={v.id} address={address} onLoaded={handleLoaded} />
       ))}
+
+      {isEmpty && (
+        <div
+          className="rounded-2xl p-8 text-center mt-2"
+          style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-n-accent)" }}>
+            Looking for APY?
+          </p>
+          <p className="text-lg font-black mb-1" style={{ color: "var(--color-n-text)" }}>
+            No deposits yet
+          </p>
+          <p className="text-sm mb-6" style={{ color: "var(--color-n-muted)" }}>
+            Start earning yield on your crypto. Pick a vault and deposit in seconds, no lock-up period.
+          </p>
+          <Link
+            href="/"
+            className="inline-block px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
+            style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
+          >
+            Explore vaults
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
