@@ -166,7 +166,6 @@ export function Portfolio() {
   const { address } = useAccount();
   const [loadedCount, setLoadedCount] = useState(0);
   const [positionCount, setPositionCount] = useState(0);
-  const [emptyRef, emptyInView] = useInView();
 
   useEffect(() => {
     setLoadedCount(0);
@@ -232,8 +231,7 @@ export function Portfolio() {
 
       {isEmpty && (
         <div
-          ref={emptyRef}
-          className={`rounded-2xl p-8 text-center mt-2${emptyInView ? " animate-slide-up" : " opacity-0"}`}
+          className="rounded-2xl p-8 text-center mt-2 animate-fade-in"
           style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
         >
           <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-n-accent)" }}>
