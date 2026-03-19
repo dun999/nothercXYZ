@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { PRIVY_READY_TIMEOUT_MS } from "@/lib/config";
+import { BottomNav } from "./BottomNav";
 
 const TABS_ORDER = ["/", "/portfolio", "/faq", "/about", "/advisor"];
 
@@ -76,11 +77,12 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-n-bg)" }}>
-      <main className="max-w-md mx-auto min-h-screen">
+      <main className="max-w-md mx-auto min-h-screen pb-[72px]">
         <div key={pathname} className={`min-h-screen animate-page-${dir}`}>
           {children}
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }
@@ -89,11 +91,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (!PRIVY_APP_ID) {
     return (
       <div className="min-h-screen" style={{ background: "var(--color-n-bg)" }}>
-        <main className="max-w-md mx-auto min-h-screen">
+        <main className="max-w-md mx-auto min-h-screen pb-[72px]">
           <div className="min-h-screen animate-page">
             {children}
           </div>
         </main>
+        <BottomNav />
       </div>
     );
   }
