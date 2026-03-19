@@ -13,6 +13,57 @@ import Link from "next/link";
 import { useInView } from "@/hooks/useInView";
 import type { VaultId } from "@/lib/constants";
 
+function ExploreVaultsSection() {
+  const { vaults: vaultsList } = useVaults();
+
+  return (
+    <div className="mt-2 animate-fade-in">
+      <p className="text-xs uppercase tracking-widest font-semibold mb-3" style={{ color: "var(--color-n-accent)" }}>
+        Explore Vaults
+      </p>
+      <div className="space-y-2">
+        {VAULTS.map((vault) => {
+          const stats = vaultsList?.find((v: { id: string }) => v.id.toLowerCase() === vault.id.toLowerCase());
+          const apy = stats?.yield?.["7d"] ? parseFloat(stats.yield["7d"]) : null;
+          return (
+            <Link
+              key={vault.id}
+              href="/"
+              className="flex items-center gap-3 rounded-2xl p-4 active:scale-[0.98] transition-all"
+              style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
+            >
+              <VaultIcon id={vault.id} size={40} />
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-sm" style={{ color: "var(--color-n-text)" }}>{vault.name}</div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--color-n-muted)" }}>{vault.description}</div>
+                <div
+                  className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1.5"
+                  style={{ background: "var(--color-n-card)", color: "var(--color-n-muted)" }}
+                >
+                  {vault.riskLevel} risk
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                {apy !== null ? (
+                  <div className="text-xl font-black" style={{ color: "var(--color-n-accent)" }}>
+                    {formatPercent(apy)}
+                  </div>
+                ) : (
+                  <div className="w-14 h-7 rounded-lg animate-pulse" style={{ background: "var(--color-n-card)" }} />
+                )}
+                <div className="text-[10px]" style={{ color: "var(--color-n-muted)" }}>APY</div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+      <p className="text-center text-xs mt-4" style={{ color: "var(--color-n-muted)" }}>
+        No lock-up period · Withdraw anytime
+      </p>
+    </div>
+  );
+}
+
 function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (vaultId: string, hasPosition: boolean, usdValue: number) => void }) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
@@ -249,26 +300,19 @@ export function Portfolio() {
       ))}
 
       {isEmpty && (
-        <div
-          className="rounded-2xl p-8 text-center mt-2 animate-fade-in"
-          style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
-        >
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-n-accent)" }}>
-            Looking for APY?
-          </p>
-          <p className="text-lg font-black mb-1" style={{ color: "var(--color-n-text)" }}>
-            No deposits yet
-          </p>
-          <p className="text-sm mb-6" style={{ color: "var(--color-n-muted)" }}>
-            Start earning yield on your crypto. Pick a vault and deposit in seconds, no lock-up period.
-          </p>
-          <Link
-            href="/"
-            className="inline-block px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
-            style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
+        <div className="animate-fade-in">
+          <div
+            className="rounded-2xl px-6 py-5 mb-4 text-center"
+            style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
           >
-            Explore vaults
-          </Link>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--color-n-accent)" }}>
+              No deposits yet
+            </p>
+            <p className="text-sm" style={{ color: "var(--color-n-muted)" }}>
+              Pick a vault below and start earning yield in seconds.
+            </p>
+          </div>
+          <ExploreVaultsSection />
         </div>
       )}
     </div>
