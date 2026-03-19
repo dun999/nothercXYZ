@@ -1,6 +1,12 @@
 export function formatAmount(raw: bigint, decimals: number, maxFrac = 4): string {
-  const n = Number(raw) / 10 ** decimals;
-  if (!isFinite(n) || n === 0) return "0";
+  if (raw === 0n) return "0";
+  // Avoid Number() precision loss for large bigints (> 2^53).
+  // Split into integer and fractional parts before converting.
+  const divisor = 10n ** BigInt(decimals);
+  const whole = raw / divisor;
+  const frac = raw % divisor;
+  const n = Number(whole) + Number(frac) / 10 ** decimals;
+  if (!isFinite(n)) return "0";
   if (n < 0.0001) return "< 0.0001";
   return n.toLocaleString("en-US", {
     minimumFractionDigits: 2,

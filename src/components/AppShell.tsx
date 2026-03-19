@@ -16,7 +16,7 @@ function useNavDirection() {
   useEffect(() => {
     const prev = prevRef.current;
     if (prev === pathname) return;
-    const prevIdx = TABS_ORDER.findIndex((t) => (t === "/" ? pathname === "/" : prev.startsWith(t)));
+    const prevIdx = TABS_ORDER.findIndex((t) => (t === "/" ? prev === "/" : prev.startsWith(t)));
     const currIdx = TABS_ORDER.findIndex((t) => (t === "/" ? pathname === "/" : pathname.startsWith(t)));
     setDir(currIdx >= prevIdx ? "right" : "left");
     prevRef.current = pathname;
