@@ -17,7 +17,7 @@ const TABS = [
   },
   {
     href: "/portfolio",
-    label: "Deposit",
+    label: "Portfolio",
     icon: (active: boolean) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
         stroke={active ? "var(--color-n-accent)" : "var(--color-n-muted)"}
