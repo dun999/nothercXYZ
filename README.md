@@ -47,12 +47,3 @@ Privy's `@privy-io/wagmi` is used as the wagmi adapter — wallet addresses are 
 | `yoBTC` | cbBTC | `0x0555E30da8f98308EdB960aa94C0Db47230d2B9c` |
 | `yoEUR` | EURC | `0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42` |
 
----
-
-## Setup
-
-```bash
-npm install
-echo "NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id" > .env.local
-npm run dev
-```
