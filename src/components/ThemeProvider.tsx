@@ -17,14 +17,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Read stored preference on mount
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null;
-    if (stored === "light" || stored === "dark") setTheme(stored);
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null;
+      if (stored === "light" || stored === "dark") setTheme(stored);
+    } catch {}
   }, []);
 
   // Apply to <html data-theme="..."> and persist
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(STORAGE_KEY_THEME, theme);
+    try { localStorage.setItem(STORAGE_KEY_THEME, theme); } catch {}
   }, [theme]);
 
   return (

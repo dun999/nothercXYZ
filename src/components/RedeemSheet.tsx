@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useChainId, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { useRedeem, usePreviewRedeem, useShareBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, parseErrorMessage } from "@/lib/format";
@@ -39,6 +40,7 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   const { address } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
+  const queryClient = useQueryClient();
   const wrongChain = chainId !== BASE_CHAIN_ID;
 
   const { shares: shareBalance } = useShareBalance(vaultId, address as `0x${string}`, {
@@ -84,6 +86,12 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
   useEffect(() => {
     if (!address && open) onCloseRef.current();
   }, [address, open]);
+
+  // Invalidate all cached queries after a confirmed withdrawal so Portfolio
+  // and vault data refresh immediately without waiting for stale time.
+  useEffect(() => {
+    if (isSuccess) queryClient.invalidateQueries();
+  }, [isSuccess, queryClient]);
 
   const handleRedeem = useCallback(async () => {
     if (!address || !parsedAmount || parsedAmount === 0n || insufficientShares) return;
@@ -237,18 +245,37 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
 
             {isActive && (
               <div
-                className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
+                className="rounded-xl px-4 py-3 mb-4"
                 style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
               >
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                    style={{ background: "var(--color-n-accent)" }} />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5"
-                    style={{ background: "var(--color-n-accent)" }} />
-                </span>
-                <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
-                  {approvalStuck ? "Approval confirmed, tap Withdraw to continue" : STEP_LABEL[txStep]}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                      style={{ background: "var(--color-n-accent)" }} />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5"
+                      style={{ background: "var(--color-n-accent)" }} />
+                  </span>
+                  <div>
+                    <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
+                      {approvalStuck ? "Approval confirmed, tap Withdraw to continue" : STEP_LABEL[txStep]}
+                    </span>
+                    {txStep === "approving" && !approvalStuck && (
+                      <p className="text-xs mt-0.5" style={{ color: "var(--color-n-muted)" }}>
+                        Step 1 of 2 · only needed once per vault
+                      </p>
+                    )}
+                    {txStep === "redeeming" && (
+                      <p className="text-xs mt-0.5" style={{ color: "var(--color-n-muted)" }}>
+                        Step 2 of 2 · confirm in your wallet
+                      </p>
+                    )}
+                    {txStep === "waiting" && (
+                      <p className="text-xs mt-0.5" style={{ color: "var(--color-n-muted)" }}>
+                        Usually under 5 seconds on Base
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 

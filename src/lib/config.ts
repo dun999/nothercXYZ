@@ -14,7 +14,7 @@ export const STORAGE_KEY_THEME = "notherc-theme";
 export const STORAGE_KEY_RISK_ACCEPTED = "notherc_risk_accepted";
 
 // ─── Timeouts & intervals (ms) ──────────────────────────────────────────────
-export const APPROVAL_TIMEOUT_MS = 30_000;
+export const APPROVAL_TIMEOUT_MS = 15_000;
 export const PRIVY_READY_TIMEOUT_MS = 5_000;
 export const QUERY_STALE_TIME_MS = 30_000;
 

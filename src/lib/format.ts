@@ -1,6 +1,12 @@
 export function formatAmount(raw: bigint, decimals: number, maxFrac = 4): string {
-  const n = Number(raw) / 10 ** decimals;
-  if (!isFinite(n) || n === 0) return "0";
+  if (raw === 0n) return "0";
+  // Avoid Number() precision loss for large bigints (> 2^53).
+  // Split into integer and fractional parts before converting.
+  const divisor = 10n ** BigInt(decimals);
+  const whole = raw / divisor;
+  const frac = raw % divisor;
+  const n = Number(whole) + Number(frac) / 10 ** decimals;
+  if (!isFinite(n)) return "0";
   if (n < 0.0001) return "< 0.0001";
   return n.toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -68,5 +74,11 @@ export function parseErrorMessage(error: Error | null): string {
     const shortHash = hashMatch ? `${hashMatch[0].slice(0, 10)}…${hashMatch[0].slice(-6)}` : "";
     return `Transaction timed out${shortHash ? ` (${shortHash})` : ""}. Try again.`;
   }
+  if (msg.includes("execution reverted") || msg.includes("reverted with reason"))
+    return "Transaction rejected by the contract. Check your balance and try again.";
+  if (msg.includes("nonce too low") || msg.includes("already known") || msg.includes("already been submitted"))
+    return "Transaction already submitted. Refresh and try again.";
+  if (msg.includes("replacement fee too low") || msg.includes("transaction was replaced"))
+    return "Transaction replaced. Please retry.";
   return error.message?.slice(0, 80) ?? "Transaction failed.";
 }

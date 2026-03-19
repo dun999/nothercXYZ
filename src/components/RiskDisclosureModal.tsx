@@ -35,7 +35,7 @@ export function RiskDisclosureModal({ open, onAccept, onClose }: Props) {
   if (!open) return null;
 
   const handleAccept = () => {
-    localStorage.setItem(STORAGE_KEY_RISK_ACCEPTED, "1");
+    try { localStorage.setItem(STORAGE_KEY_RISK_ACCEPTED, "1"); } catch {}
     onAccept();
   };
 
