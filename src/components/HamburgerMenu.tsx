@@ -16,6 +16,7 @@ export function HamburgerMenu() {
   const TABS = [
     { href: "/", label: "Earn" },
     { href: "/portfolio", label: "Portfolio" },
+    { href: "/advisor", label: "Advisor" },
     { href: "/faq", label: "FAQ" },
     { href: "/about", label: "About" },
   ];
