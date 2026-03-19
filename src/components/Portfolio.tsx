@@ -188,6 +188,27 @@ export function Portfolio() {
     setVaultStatus((prev) => ({ ...prev, [vaultId]: { hasPosition, usdValue } }));
   }, []);
 
+  const loadedCount = Object.keys(vaultStatus).length;
+  const positionCount = Object.values(vaultStatus).filter((v) => v.hasPosition).length;
+  const totalUsd = Object.values(vaultStatus).reduce((sum, v) => sum + v.usdValue, 0);
+  const allLoaded = loadedCount >= VAULTS.length;
+  const isEmpty = allLoaded && positionCount === 0;
+
+  // Persist empty state to sessionStorage so it survives navigation re-mounts
+  useEffect(() => {
+    if (!address) return;
+    const key = `notherc-empty-${address}`;
+    if (isEmpty) {
+      sessionStorage.setItem(key, "1");
+      setConfirmedEmpty(true);
+    } else if (allLoaded && positionCount > 0) {
+      sessionStorage.removeItem(key);
+      setConfirmedEmpty(false);
+    }
+  }, [isEmpty, allLoaded, positionCount, address]);
+
+  const showEmptyCTA = confirmedEmpty || isEmpty;
+
   if (!address) {
     return (
       <div
@@ -216,27 +237,6 @@ export function Portfolio() {
       </div>
     );
   }
-
-  const loadedCount = Object.keys(vaultStatus).length;
-  const positionCount = Object.values(vaultStatus).filter((v) => v.hasPosition).length;
-  const totalUsd = Object.values(vaultStatus).reduce((sum, v) => sum + v.usdValue, 0);
-  const allLoaded = loadedCount >= VAULTS.length;
-  const isEmpty = allLoaded && positionCount === 0;
-
-  // Persist empty state to sessionStorage so it survives navigation re-mounts
-  useEffect(() => {
-    if (!address) return;
-    const key = `notherc-empty-${address}`;
-    if (isEmpty) {
-      sessionStorage.setItem(key, "1");
-      setConfirmedEmpty(true);
-    } else if (allLoaded && positionCount > 0) {
-      sessionStorage.removeItem(key);
-      setConfirmedEmpty(false);
-    }
-  }, [isEmpty, allLoaded, positionCount, address]);
-
-  const showEmptyCTA = confirmedEmpty || isEmpty;
 
   return (
     <div>
