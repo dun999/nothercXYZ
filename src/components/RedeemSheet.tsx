@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAccount, useChainId, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { useRedeem, usePreviewRedeem, useShareBalance } from "@yo-protocol/react";
 import { parseAmount, formatAmount, parseErrorMessage } from "@/lib/format";
@@ -71,13 +71,19 @@ export function RedeemSheet({ open, onClose, vaultId }: Props) {
     return () => clearTimeout(t);
   }, [approveHash, step]);
 
-  useEffect(() => {
-    if (!open) { setAmount(""); reset?.(); }
-  }, [open, reset]);
+  // Use refs so effects don't re-fire when function references change between renders
+  const resetRef = useRef(reset);
+  resetRef.current = reset;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
-    if (!address && open) onClose();
-  }, [address, open, onClose]);
+    if (!open) { setAmount(""); resetRef.current?.(); }
+  }, [open]);
+
+  useEffect(() => {
+    if (!address && open) onCloseRef.current();
+  }, [address, open]);
 
   const handleRedeem = useCallback(async () => {
     if (!address || !parsedAmount || parsedAmount === 0n || insufficientShares) return;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
@@ -73,13 +73,19 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const balanceLoaded = tokenBal !== undefined;
   const insufficientBalance = parsedAmount > 0n && balanceLoaded && parsedAmount > tokenBal!.balance;
 
-  useEffect(() => {
-    if (!open) { setAmount(""); reset?.(); }
-  }, [open, reset]);
+  // Use refs so effects don't re-fire when function references change between renders
+  const resetRef = useRef(reset);
+  resetRef.current = reset;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
-    if (!address && open) onClose();
-  }, [address, open, onClose]);
+    if (!open) { setAmount(""); resetRef.current?.(); }
+  }, [open]);
+
+  useEffect(() => {
+    if (!address && open) onCloseRef.current();
+  }, [address, open]);
 
   const handleDeposit = useCallback(async () => {
     if (!address || !parsedAmount || parsedAmount === 0n || insufficientBalance) return;
