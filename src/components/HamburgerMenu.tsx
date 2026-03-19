@@ -14,9 +14,9 @@ export function HamburgerMenu() {
   const { disconnect } = useDisconnect();
 
   const TABS = [
-    { href: "/advisor", label: "Advisor" },
     { href: "/faq", label: "FAQ" },
     { href: "/about", label: "About" },
+    { href: "/advisor", label: "Advisor" },
   ];
 
   return (
