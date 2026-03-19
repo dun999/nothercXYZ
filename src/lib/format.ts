@@ -74,5 +74,11 @@ export function parseErrorMessage(error: Error | null): string {
     const shortHash = hashMatch ? `${hashMatch[0].slice(0, 10)}…${hashMatch[0].slice(-6)}` : "";
     return `Transaction timed out${shortHash ? ` (${shortHash})` : ""}. Try again.`;
   }
+  if (msg.includes("execution reverted") || msg.includes("reverted with reason"))
+    return "Transaction rejected by the contract. Check your balance and try again.";
+  if (msg.includes("nonce too low") || msg.includes("already known") || msg.includes("already been submitted"))
+    return "Transaction already submitted. Refresh and try again.";
+  if (msg.includes("replacement fee too low") || msg.includes("transaction was replaced"))
+    return "Transaction replaced. Please retry.";
   return error.message?.slice(0, 80) ?? "Transaction failed.";
 }
