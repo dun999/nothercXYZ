@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { useDeposit, usePreviewDeposit, useTokenBalance } from "@yo-protocol/react";
-import { parseAmount, formatAmount, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
+import { parseAmount, formatAmount, formatUSD, estimateYearlyEarnings, parseErrorMessage } from "@/lib/format";
 import { VAULTS, BASE_CHAIN_ID } from "@/lib/constants";
 import {
   APPROVAL_TIMEOUT_MS, DEPOSIT_SLIPPAGE_BPS,
@@ -34,6 +34,10 @@ interface Props {
   onClose: () => void;
   vaultId: VaultId;
   apy: number;
+}
+
+function calcProjection(principal: number, apyPct: number, years: number): number {
+  return principal * Math.pow(1 + apyPct / 100, years) - principal;
 }
 
 export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
@@ -75,7 +79,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
   const balanceLoaded = tokenBal !== undefined;
   const insufficientBalance = parsedAmount > 0n && balanceLoaded && parsedAmount > tokenBal!.balance;
 
-  // Use refs so effects don't re-fire when function references change between renders
   const resetRef = useRef(reset);
   resetRef.current = reset;
   const onCloseRef = useRef(onClose);
@@ -89,8 +92,6 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
     if (!address && open) onCloseRef.current();
   }, [address, open]);
 
-  // Invalidate all cached queries after a confirmed deposit so Portfolio
-  // and vault data refresh immediately without waiting for stale time.
   useEffect(() => {
     if (isSuccess) queryClient.invalidateQueries();
   }, [isSuccess, queryClient]);
@@ -109,10 +110,13 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
     ? estimateYearlyEarnings(Number(parsedAmount) / 10 ** vault.decimals, apy)
     : null;
 
+  // Projected earnings for success screen
+  const depositedUsd = parsedAmount > 0n
+    ? Number(parsedAmount) / 10 ** vault.decimals
+    : 0;
+
   const txStep = (step as TxStep) ?? "idle";
   const isActive = txStep !== "idle" && txStep !== "success" && txStep !== "error";
-
-  // Approval tx confirmed on-chain but hook still waiting (stuck) — allow manual retry
   const approvalStuck = (approveConfirmed || approveTimedOut) && txStep === "approving";
 
   const buttonLabel = wrongChain
@@ -247,7 +251,7 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                           <span className="relative inline-flex rounded-full h-2.5 w-2.5"
                             style={{ background: "var(--color-n-accent)" }} />
                         </span>
-                        <div>
+                        <div className="flex-1">
                           <span className="text-sm" style={{ color: "var(--color-n-text)" }}>
                             {approvalStuck ? "Approval confirmed, tap Deposit to continue" : STEP_LABEL[txStep]}
                           </span>
@@ -266,24 +270,38 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                               Usually under 5 seconds on Base
                             </p>
                           )}
+                          {/* Approval tx link */}
+                          {txStep === "approving" && approveHash && (
+                            <a
+                              href={basescanTx(approveHash)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs mt-0.5 block"
+                              style={{ color: "var(--color-n-accent)" }}
+                            >
+                              View approval tx ↗
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>
                   )}
 
                   {/* CTA */}
-                  <button
-                    onClick={handleDeposit}
-                    disabled={buttonDisabled}
-                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
-                    style={{
-                      background: isSuccess ? COLOR_SUCCESS : wrongChain ? COLOR_CHAIN_SWITCH : "var(--color-n-accent)",
-                      color: (isSuccess || wrongChain) ? "#fff" : "var(--color-n-on-accent)",
-                      cursor: buttonDisabled ? "not-allowed" : "pointer",
-                    }}
-                  >
-                    {buttonLabel}
-                  </button>
+                  {!isSuccess && (
+                    <button
+                      onClick={handleDeposit}
+                      disabled={buttonDisabled}
+                      className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] disabled:opacity-40"
+                      style={{
+                        background: wrongChain ? COLOR_CHAIN_SWITCH : "var(--color-n-accent)",
+                        color: wrongChain ? "#fff" : "var(--color-n-on-accent)",
+                        cursor: buttonDisabled ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {buttonLabel}
+                    </button>
+                  )}
 
                   {error && (
                     <div className="mt-3 rounded-xl px-4 py-3"
@@ -293,34 +311,85 @@ export function DepositSheet({ open, onClose, vaultId, apy }: Props) {
                     </div>
                   )}
 
+                  {/* Enhanced success screen */}
                   {isSuccess && hash && (
-                    <>
-                      <div className="mt-3 rounded-xl px-4 py-3 flex items-center justify-between"
-                        style={{ background: COLOR_SUCCESS_BG, border: `1px solid ${COLOR_SUCCESS_BORDER}` }}>
-                        <span className="text-sm text-emerald-400 font-medium">Deposit confirmed</span>
-                        <a href={basescanTx(hash)} target="_blank" rel="noopener noreferrer"
-                          className="text-sm font-semibold" style={{ color: "var(--color-n-accent)" }}>
-                          View tx
-                        </a>
+                    <div className="animate-fade-in">
+                      {/* Success header */}
+                      <div
+                        className="rounded-2xl p-5 mb-3 text-center"
+                        style={{ background: COLOR_SUCCESS_BG, border: `1px solid ${COLOR_SUCCESS_BORDER}` }}
+                      >
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+                          style={{ background: "rgba(34,197,94,0.15)" }}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke={COLOR_SUCCESS} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20 6 9 17l-5-5" />
+                          </svg>
+                        </div>
+                        <p className="text-base font-black mb-0.5" style={{ color: "var(--color-n-text)" }}>
+                          Now earning {apy > 0 ? `${apy.toFixed(2)}%` : ""} APY
+                        </p>
+                        <p className="text-xs" style={{ color: "var(--color-n-muted)" }}>
+                          Your money is working for you
+                        </p>
                       </div>
+
+                      {/* Projected earnings */}
+                      {depositedUsd > 0 && apy > 0 && (
+                        <div className="grid grid-cols-3 gap-2 mb-3">
+                          {[
+                            { label: "1 month", years: 1 / 12 },
+                            { label: "6 months", years: 0.5 },
+                            { label: "1 year", years: 1 },
+                          ].map(({ label, years }) => {
+                            const earned = calcProjection(depositedUsd, apy, years);
+                            return (
+                              <div key={label} className="rounded-xl px-2 py-2.5 text-center"
+                                style={{ background: "var(--color-n-card)" }}>
+                                <div className="text-[10px] mb-1" style={{ color: "var(--color-n-muted)" }}>{label}</div>
+                                <div className="text-sm font-black" style={{ color: "var(--color-n-accent)" }}>
+                                  +{formatUSD(earned)}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      <p className="text-[10px] text-center mb-3" style={{ color: "var(--color-n-muted)" }}>
+                        Projected at current APY · Rates are variable
+                      </p>
+
+                      {/* TX link */}
+                      <a
+                        href={basescanTx(hash)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-1.5 text-sm font-semibold mb-2 py-2"
+                        style={{ color: "var(--color-n-accent)" }}
+                      >
+                        View transaction on BaseScan ↗
+                      </a>
+
+                      {/* Portfolio button */}
                       <Link
                         href="/portfolio"
                         onClick={onClose}
-                        className="w-full mt-2 py-3 rounded-xl font-bold text-sm text-center block transition-all active:scale-[0.98]"
+                        className="w-full py-3 rounded-xl font-bold text-sm text-center block transition-all active:scale-[0.98]"
                         style={{
-                          background: "var(--color-n-card)",
-                          border: "1px solid var(--color-n-border)",
-                          color: "var(--color-n-text)",
+                          background: "var(--color-n-accent)",
+                          color: "var(--color-n-on-accent)",
                         }}
                       >
                         View Portfolio →
                       </Link>
-                    </>
+                    </div>
                   )}
 
-                  <p className="text-xs text-center mt-4" style={{ color: "var(--color-n-muted)" }}>
-                    Non-custodial · Withdraw any time
-                  </p>
+                  {!isSuccess && (
+                    <p className="text-xs text-center mt-4" style={{ color: "var(--color-n-muted)" }}>
+                      Non-custodial · Withdraw any time
+                    </p>
+                  )}
                 </>
               )}
 

@@ -13,6 +13,207 @@ import Link from "next/link";
 import { useInView } from "@/hooks/useInView";
 import type { VaultId } from "@/lib/constants";
 
+/* ── My Targets ── */
+type EarnTarget = {
+  id: string;
+  name: string;
+  targetUsd: number;
+};
+
+const TARGETS_KEY = "notherc-earn-targets";
+
+function loadTargets(): EarnTarget[] {
+  try {
+    const raw = localStorage.getItem(TARGETS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTargets(targets: EarnTarget[]) {
+  localStorage.setItem(TARGETS_KEY, JSON.stringify(targets));
+}
+
+function MyTargets({ totalUsd }: { totalUsd: number }) {
+  const [targets, setTargets] = useState<EarnTarget[]>([]);
+  const [adding, setAdding] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newTarget, setNewTarget] = useState("");
+
+  useEffect(() => {
+    setTargets(loadTargets());
+  }, []);
+
+  function addTarget() {
+    const t = parseFloat(newTarget.replace(/,/g, ""));
+    if (!newName.trim() || !t || t <= 0) return;
+    const updated = [...targets, { id: Date.now().toString(), name: newName.trim(), targetUsd: t }];
+    setTargets(updated);
+    saveTargets(updated);
+    setAdding(false);
+    setNewName("");
+    setNewTarget("");
+  }
+
+  function removeTarget(id: string) {
+    const updated = targets.filter((t) => t.id !== id);
+    setTargets(updated);
+    saveTargets(updated);
+  }
+
+  return (
+    <div
+      className="rounded-2xl p-5 mb-3"
+      style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: "var(--color-n-accent)" }}>
+            My Targets
+          </p>
+          <p className="text-[11px] mt-0.5" style={{ color: "var(--color-n-muted)" }}>
+            Track your savings milestones
+          </p>
+        </div>
+        {!adding && (
+          <button
+            onClick={() => setAdding(true)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-[0.97]"
+            style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add
+          </button>
+        )}
+      </div>
+
+      {/* Add form */}
+      {adding && (
+        <div
+          className="rounded-xl p-4 mb-4 animate-fade-in"
+          style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
+        >
+          <p className="text-xs font-semibold mb-3" style={{ color: "var(--color-n-text)" }}>New target</p>
+          <input
+            type="text"
+            placeholder="e.g. Emergency Fund"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            maxLength={32}
+            className="w-full rounded-xl px-3 py-2.5 text-sm font-semibold outline-none mb-2"
+            style={{
+              background: "var(--color-n-surface)",
+              border: "1px solid var(--color-n-border)",
+              color: "var(--color-n-text)",
+            }}
+          />
+          <div className="relative mb-3">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold"
+              style={{ color: "var(--color-n-muted)" }}>$</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="10,000"
+              value={newTarget}
+              onChange={(e) => setNewTarget(e.target.value.replace(/[^0-9.,]/g, ""))}
+              className="w-full rounded-xl pl-7 pr-3 py-2.5 text-sm font-bold outline-none"
+              style={{
+                background: "var(--color-n-surface)",
+                border: "1px solid var(--color-n-border)",
+                color: "var(--color-n-text)",
+              }}
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={addTarget}
+              disabled={!newName.trim() || !newTarget}
+              className="flex-1 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40 transition-all active:scale-[0.98]"
+              style={{ background: "var(--color-n-accent)", color: "var(--color-n-on-accent)" }}
+            >
+              Save
+            </button>
+            <button
+              onClick={() => { setAdding(false); setNewName(""); setNewTarget(""); }}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold border"
+              style={{ borderColor: "var(--color-n-border)", color: "var(--color-n-muted)", background: "transparent" }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Target list */}
+      {targets.length === 0 && !adding ? (
+        <div className="text-center py-4">
+          <p className="text-sm" style={{ color: "var(--color-n-muted)" }}>No targets yet</p>
+          <p className="text-xs mt-1" style={{ color: "var(--color-n-muted)" }}>
+            Set a goal to track your progress
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {targets.map((t) => {
+            const progress = t.targetUsd > 0 ? Math.min((totalUsd / t.targetUsd) * 100, 100) : 0;
+            const reached = progress >= 100;
+            return (
+              <div key={t.id} className="rounded-xl px-4 py-3"
+                style={{ background: "var(--color-n-card)" }}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    {reached && (
+                      <span style={{ color: "var(--color-n-accent)" }}>★</span>
+                    )}
+                    <span className="text-sm font-semibold" style={{ color: "var(--color-n-text)" }}>
+                      {t.name}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => removeTarget(t.id)}
+                    className="text-xs px-2 py-0.5 rounded-lg"
+                    style={{ color: "var(--color-n-muted)", background: "var(--color-n-surface)" }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span style={{ color: "var(--color-n-muted)" }}>
+                    {formatUSD(totalUsd)} of {formatUSD(t.targetUsd)}
+                  </span>
+                  <span className="font-bold" style={{ color: reached ? "var(--color-n-accent)" : "var(--color-n-text)" }}>
+                    {progress.toFixed(0)}%
+                  </span>
+                </div>
+                {/* Progress bar */}
+                <div className="h-1.5 rounded-full overflow-hidden"
+                  style={{ background: "var(--color-n-border)" }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${progress}%`,
+                      background: reached ? "var(--color-n-accent)" : `linear-gradient(90deg, var(--color-n-accent) 0%, var(--color-n-accent-dim) 100%)`,
+                    }}
+                  />
+                </div>
+                {reached && (
+                  <p className="text-[10px] mt-1.5 font-semibold" style={{ color: "var(--color-n-accent)" }}>
+                    Target reached!
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PositionCard({ vaultId, address, onLoaded }: { vaultId: VaultId; address: string; onLoaded: (vaultId: string, hasPosition: boolean, usdValue: number) => void }) {
   const vault = VAULTS.find((v) => v.id === vaultId)!;
   const [redeemOpen, setRedeemOpen] = useState(false);
@@ -289,6 +490,9 @@ export function Portfolio() {
           </Link>
         </div>
       )}
+
+      {/* My Targets — shown for connected wallets */}
+      <MyTargets totalUsd={totalUsd} />
     </div>
   );
 }
