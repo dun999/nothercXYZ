@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { AppShell } from "@/components/AppShell";
@@ -26,13 +27,20 @@ export const viewport: Viewport = {
   themeColor: "#030303",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const host = (await headers()).get("host") ?? "";
+  const isDocs = host.startsWith("docs.");
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>
-          <AppShell>{children}</AppShell>
-        </Providers>
+        {isDocs ? (
+          children
+        ) : (
+          <Providers>
+            <AppShell>{children}</AppShell>
+          </Providers>
+        )}
       </body>
     </html>
   );
