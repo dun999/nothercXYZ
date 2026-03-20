@@ -19,6 +19,10 @@ export function HamburgerMenu() {
     { href: "/advisor", label: "Advisor" },
   ];
 
+  const EXTERNAL = [
+    { href: "https://docs.notherc.xyz", label: "Docs" },
+  ];
+
   return (
     <div className="relative">
       {open && (
@@ -79,6 +83,26 @@ export function HamburgerMenu() {
               </Link>
             );
           })}
+
+          {EXTERNAL.map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-between px-4 py-3.5 text-sm font-semibold"
+              style={{
+                color: "var(--color-n-text)",
+                borderBottom: "1px solid var(--color-n-border)",
+              }}
+            >
+              {label}
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
+          ))}
 
           {address ? (
             <button
