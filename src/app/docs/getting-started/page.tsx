@@ -149,7 +149,7 @@ export default function GettingStartedPage() {
           </p>
         </div>
         <a
-          href="/docs/vaults"
+          href="/vaults"
           className="shrink-0 text-sm font-semibold px-4 py-2 rounded-lg"
           style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)", color: "var(--color-n-text)" }}
         >

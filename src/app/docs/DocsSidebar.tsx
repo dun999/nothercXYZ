@@ -2,37 +2,39 @@
 
 import { usePathname } from "next/navigation";
 
+// Hrefs are root-relative for docs.notherc.xyz
+// Middleware rewrites: docs.notherc.xyz/vaults → /docs/vaults
 const nav = [
   {
     section: "Overview",
     links: [
-      { href: "/docs", label: "Introduction" },
-      { href: "/docs/getting-started", label: "Getting Started" },
+      { href: "/", label: "Introduction" },
+      { href: "/getting-started", label: "Getting Started" },
     ],
   },
   {
     section: "Vaults",
     links: [
-      { href: "/docs/vaults", label: "All Vaults" },
-      { href: "/docs/vaults/usdc", label: "yoUSD · USDC" },
-      { href: "/docs/vaults/eth", label: "yoETH · WETH" },
-      { href: "/docs/vaults/btc", label: "yoBTC · cbBTC" },
-      { href: "/docs/vaults/eur", label: "yoEUR · EURC" },
+      { href: "/vaults", label: "All Vaults" },
+      { href: "/vaults/usdc", label: "yoUSD · USDC" },
+      { href: "/vaults/eth", label: "yoETH · WETH" },
+      { href: "/vaults/btc", label: "yoBTC · cbBTC" },
+      { href: "/vaults/eur", label: "yoEUR · EURC" },
     ],
   },
   {
     section: "SDK Reference",
     links: [
-      { href: "/docs/sdk", label: "YO Protocol Hooks" },
-      { href: "/docs/sdk/deposit", label: "Deposit Flow" },
-      { href: "/docs/sdk/withdraw", label: "Withdraw Flow" },
+      { href: "/sdk", label: "YO Protocol Hooks" },
+      { href: "/sdk/deposit", label: "Deposit Flow" },
+      { href: "/sdk/withdraw", label: "Withdraw Flow" },
     ],
   },
   {
     section: "Protocol",
     links: [
-      { href: "/docs/protocol/erc4626", label: "ERC-4626 Standard" },
-      { href: "/docs/protocol/security", label: "Security & Audit" },
+      { href: "/protocol/erc4626", label: "ERC-4626 Standard" },
+      { href: "/protocol/security", label: "Security & Audit" },
     ],
   },
 ];

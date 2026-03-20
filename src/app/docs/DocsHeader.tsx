@@ -18,7 +18,7 @@ export function DocsHeader() {
       >
         <div className="max-w-[1180px] mx-auto w-full px-6 flex items-center justify-between gap-6">
           {/* Logo */}
-          <a href="/docs" className="flex items-center gap-2.5 shrink-0">
+          <a href="/" className="flex items-center gap-2.5 shrink-0">
             <img src="/logo.svg" alt="Notherc" width={26} height={26} style={{ borderRadius: 7 }} />
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-sm" style={{ color: "var(--color-n-text)" }}>Notherc</span>
@@ -38,9 +38,9 @@ export function DocsHeader() {
           {/* Nav links (desktop) */}
           <nav className="hidden md:flex items-center gap-6">
             {[
-              { href: "/docs/getting-started", label: "Getting Started" },
-              { href: "/docs/vaults", label: "Vaults" },
-              { href: "/docs/sdk", label: "SDK Reference" },
+              { href: "/getting-started", label: "Getting Started" },
+              { href: "/vaults", label: "Vaults" },
+              { href: "/sdk", label: "SDK Reference" },
             ].map(({ href, label }) => (
               <a
                 key={href}

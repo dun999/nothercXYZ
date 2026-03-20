@@ -10,7 +10,7 @@ const vaults = [
     address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     decimals: 6,
     desc: "USD-pegged stablecoin. Lowest volatility, stable yield denominated in USDC.",
-    href: "/docs/vaults/usdc",
+    href: "/vaults/usdc",
     tag: "Stablecoin",
   },
   {
@@ -20,7 +20,7 @@ const vaults = [
     address: "0x4200000000000000000000000000000000000006",
     decimals: 18,
     desc: "ETH-denominated yield. Your position grows in ETH terms.",
-    href: "/docs/vaults/eth",
+    href: "/vaults/eth",
     tag: "ETH",
   },
   {
@@ -30,7 +30,7 @@ const vaults = [
     address: "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
     decimals: 8,
     desc: "Bitcoin-denominated vault using Coinbase's cbBTC on Base.",
-    href: "/docs/vaults/btc",
+    href: "/vaults/btc",
     tag: "BTC",
   },
   {
@@ -40,7 +40,7 @@ const vaults = [
     address: "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
     decimals: 6,
     desc: "Euro stablecoin vault. Earn EUR-denominated yield on Base.",
-    href: "/docs/vaults/eur",
+    href: "/vaults/eur",
     tag: "Stablecoin",
   },
 ];
