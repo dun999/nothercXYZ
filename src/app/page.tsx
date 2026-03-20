@@ -125,9 +125,19 @@ export default function HomePage() {
           <h2 className="text-base font-bold" style={{ color: "var(--color-n-text)" }}>
             Choose a vault
           </h2>
-          <span className="text-xs" style={{ color: "var(--color-n-muted)" }}>
-            Live on Base
-          </span>
+          <a
+            href="https://www.yo.xyz/files/Yo-Protocol-Hunter-Security-Audit-Report.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[10px] font-semibold"
+            style={{ color: "var(--color-n-muted)" }}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Audited ↗
+          </a>
         </div>
         {VAULTS.map((vault, i) => (
           <VaultCard key={vault.id} vault={vault} index={i} />
