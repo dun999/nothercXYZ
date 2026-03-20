@@ -39,6 +39,11 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(id);
   }, [ready]);
 
+  // Docs pages bypass the mobile app shell entirely
+  if (pathname.startsWith("/docs")) {
+    return <>{children}</>;
+  }
+
   if (!ready && !timedOut) {
     return (
       <div
@@ -102,4 +107,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return <AppShellInner>{children}</AppShellInner>;
+}
+
+export function DocsShell({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }
