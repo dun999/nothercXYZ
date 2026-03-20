@@ -111,37 +111,6 @@ export default function AboutPage() {
         </p>
       </div>
 
-      {/* Documentation */}
-      <a
-        href="https://docs.notherc.xyz"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-between rounded-2xl p-5 mb-6"
-        style={{ background: "var(--color-n-surface)", border: "1px solid var(--color-n-border)" }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: "var(--color-n-card)", border: "1px solid var(--color-n-border)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ color: "var(--color-n-text)" }}>
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
-            </svg>
-          </div>
-          <div>
-            <p className="font-bold text-sm" style={{ color: "var(--color-n-text)" }}>Documentation</p>
-            <p className="text-xs" style={{ color: "var(--color-n-muted)" }}>docs.notherc.xyz</p>
-          </div>
-        </div>
-        <svg width="14" height="14" viewBox="0 0 12 12" fill="none" style={{ color: "var(--color-n-muted)", flexShrink: 0 }}>
-          <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </a>
-
       {/* Follow on X */}
       <div
         className="rounded-2xl p-5 mb-6 flex flex-col items-center text-center gap-4"
