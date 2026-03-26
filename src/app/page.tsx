@@ -7,14 +7,7 @@ import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { ThemeSlide } from "@/components/ThemeSlide";
 import { VAULTS } from "@/lib/constants";
 import { formatPercent, shortenAddress } from "@/lib/format";
-import { Metadata } from 'next';
 
-
-export const metadata: Metadata = {
-  other: {
-    'base:app_id': '69c576f886d9e93182f6ffd3',
-  },
-};
 export default function Home()
 function BestApy() {
   const { vaults: vaultsList } = useVaults();
