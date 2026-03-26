@@ -146,4 +146,15 @@ export default function HomePage() {
 
     </div>
   );
+  import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  other: {
+    'base:app_id': '69c576f886d9e93182f6ffd3',
+  },
+};
+
+export default function Home() {
+  return (<div>{/* Your page content */}</div>);
+}
 }
