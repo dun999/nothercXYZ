@@ -4,10 +4,6 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { AppShell } from "@/components/AppShell";
 
-export default function Home()
-
-export default function Home()
-
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
