@@ -3,10 +3,17 @@ import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { AppShell } from "@/components/AppShell";
+import { Metadata } from 'next';
+
+
+export default function Home()
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
+  other: {
+    'base:app_id': '69c576f886d9e93182f6ffd3',
+  }, 
   title: "Notherc, on-chain savings",
   description:
     "Earn yield on USDC, ETH, BTC and EUR. Non-custodial, no lock-up. Deposit and earn on Base.",
