@@ -8,7 +8,6 @@ import { ThemeSlide } from "@/components/ThemeSlide";
 import { VAULTS } from "@/lib/constants";
 import { formatPercent, shortenAddress } from "@/lib/format";
 
-export default function Home()
 function BestApy() {
   const { vaults: vaultsList } = useVaults();
   if (!vaultsList) return null;
